@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Registration</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        .register-container { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 10px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            width: 100%; 
+            max-width: 400px; 
+        }
+        h2 { 
+            text-align: center; 
+            color: #333; 
+            margin-bottom: 30px; 
+            font-size: 28px; 
+        }
+        .form-group { 
+            margin-bottom: 20px; 
+        }
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            color: #555; 
+            font-weight: bold; 
+        }
+        input[type="text"], input[type="password"] { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid #ddd; 
+            border-radius: 5px; 
+            font-size: 16px; 
+            box-sizing: border-box; 
+        }
+        input[type="text"]:focus, input[type="password"]:focus { 
+            outline: none; 
+            border-color: #667eea; 
+        }
+        .register-btn { 
+            width: 100%; 
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); 
+            color: white; 
+            padding: 12px; 
+            border: none; 
+            border-radius: 5px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            transition: transform 0.2s; 
+        }
+        .register-btn:hover { 
+            transform: translateY(-2px); 
+        }
+        .error { 
+            color: #e74c3c; 
+            text-align: center; 
+            margin-bottom: 20px; 
+            padding: 10px; 
+            background: #fdf2f2; 
+            border-radius: 5px; 
+            border: 1px solid #fad4d4; 
+        }
+        .info { 
+            color: #3498db; 
+            text-align: center; 
+            margin-bottom: 20px; 
+            padding: 15px; 
+            background: #f0f8ff; 
+            border-radius: 5px; 
+            border: 1px solid #cce7ff; 
+            font-size: 14px; 
+        }
+        .links { 
+            text-align: center; 
+            margin-top: 20px; 
+        }
+        .links a { 
+            color: #667eea; 
+            text-decoration: none; 
+        }
+        .links a:hover { 
+            text-decoration: underline; 
+        }
+        .admin-badge {
+            background: #e74c3c;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-badge">ADMIN PANEL</div>
+    
+    <div class="register-container">
+        <h2>👤 Create Admin Account</h2>
+        
+        <div class="info">
+            <strong>⚠️ Admin Registration</strong><br>
+            This will create a new administrator account with full access to the system.
+        </div>
+        
+        <div th:if="${error}" class="error">
+            <p th:text="${error}"></p>
+        </div>
+        
+        <form action="/admin/register" method="post">
+            <div class="form-group">
+                <label for="username">Admin Username:</label>
+                <input id="username" name="username" type="text" required 
+                       placeholder="Enter unique username">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input id="password" name="password" type="password" required 
+                       placeholder="Enter secure password" minlength="6">
+            </div>
+            
+            <button type="submit" class="register-btn">Create Admin Account</button>
+        </form>
+        
+        <div class="links">
+            <a href="/admin/login">Already have an admin account? Login</a><br>
+            <a href="/login">Regular User Login</a>
+        </div>
+    </div>
+</body>
+</html> 

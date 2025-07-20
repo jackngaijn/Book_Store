@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+            // Show error message if present
+            let error = /*[[${error}]]*/ null;
+            if (error != null && error !== '') {
+                // Error will be shown in the div below
+            }
+            
+            // Show success message if present
+            let success = /*[[${success}]]*/ null;
+            if (success != null && success !== '') {
+                // Success will be shown in the div below
+            }
+        /*]]>*/
+    </script>
+</head>
+<body>
+    <h2>Login</h2>
+    <!-- <div th:if="${error}" style="color: red; margin-bottom: 10px;">
+        <p th:text="${error}"></p>
+    </div> -->
+    
+    <form action="/user/login" method="post">
+        <label for="username">Username:</label><br>
+        <input id="username" name="username" type="text" required><br><br>
+        
+        <label for="password">Password:</label><br>
+        <input id="password" name="password" type="password" required><br><br>
+        
+        <button type="submit">Login</button>
+    </form>
+
+    <div th:if="${error}" class="error">
+        <p th:text="${error}"></p>
+    </div>
+    
+    <div th:if="${success}" class="success">
+        <p th:text="${success}"></p>
+    </div>
+    
+    <p><a href="/user/register">Don't have an account? Register here</a></p>
+</body>
+</html>

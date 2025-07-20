@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Login</title>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+                // Show error message if present
+                let error = /*[[${error}]]*/ null;
+                if (error != null && error !== '') {
+                    // Error will be shown in the div below
+                }
+                
+                // Show success message if present
+                let success = /*[[${success}]]*/ null;
+                if (success != null && success !== '') {
+                    // Success will be shown in the div below
+                }
+            /*]]>*/
+        </script>
+    </head>
+<body>
+    <h1>Create Book</h1>
+    <form action="/book/create" method="post">
+        <label>Subject: <input type="text" name="subject" required></label><br>
+        <label>Description: <input type="text" name="description"></label><br>
+        <label>ISBN: <input type="text" name="ISBN"></label><br>
+        <label>Content: <input type="text" name="content"></label><br>
+        <label>Content Type: <input type="text" name="content_type"></label><br>
+        <label>Author: <input type="text" name="author"></label><br>
+        <label>Publisher: <input type="text" name="publisher"></label><br>
+        <label>Category: <input type="text" name="category"></label><br>
+        <label>Price: <input type="text" name="price"></label><br>
+        <button type="submit">Create</button>
+    </form>
+    <div th:if="${error}" class="error">
+        <p th:text="${error}"></p>
+    </div>
+    
+    <div th:if="${success}" class="success">
+        <p th:text="${success}"></p>
+    </div>
+</body>
+</html>
