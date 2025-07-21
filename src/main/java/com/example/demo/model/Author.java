@@ -27,7 +27,7 @@ public class Author {
 
     public Author() {}
 
-    public Author(String name) {
+    public Author(String name, String email, String country) {
         this.name = name;
         this.email = email;
         this.country = country;
@@ -64,8 +64,6 @@ public class Author {
     public String getCountry(){
         return country;
     }
-
-
 
     public List<Book> getBooks() {
         return books;

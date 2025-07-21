@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create Author</title>
+</head>
+<body>
+    <h1>Create New Author</h1>
+    
+    <form action="/author/create" method="post">
+        <div>
+            <label for="name">Author Name:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        
+        <div>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        
+        <div>
+            <label for="country">Country:</label>
+            <input type="text" id="country" name="country" required>
+        </div>
+        
+        <button type="submit">Create Author</button>
+    </form>
+</body>
+</html>

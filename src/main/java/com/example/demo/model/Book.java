@@ -27,7 +27,7 @@ public class Book {
     private String content_type;
 
     @Column(nullable = true)
-    private String author;
+    private String authorName;
     
     @Column(nullable = true)
     private String publisher;
@@ -52,13 +52,13 @@ public class Book {
 
     public Book() {}
 
-    public Book(String subject, String description, String ISBN, String content, String content_type, String author, String publisher, String category, String created_date, String price) {
+    public Book(String subject, String description, String ISBN, String content, String content_type, String authorName, String publisher, String category, String created_date, String price) {
         this.subject = subject;
         this.description = description;
         this.ISBN = ISBN;
         this.content = content;
         this.content_type = content_type;
-        this.author = author;
+        this.authorName = authorName;
         this.publisher = publisher;
         this.category = category;
         this.created_date = created_date;   
@@ -113,12 +113,12 @@ public class Book {
         this.content_type = content_type;
     }
 
-    public String getAuthor() {
-        return author;
+    public String getAuthorName() {
+        return authorName;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName;
     }
 
     public String getPublisher() {
@@ -159,5 +159,13 @@ public class Book {
 
     public void setUsers(Set<User> users) {
         this.users = users;
+    }
+
+    public Author getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(Author author) {
+        this.author = author;
     }
 }

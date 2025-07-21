@@ -42,7 +42,6 @@ public class BookController {
         if (session.getAttribute("user") == null) {
             return "redirect:/book/list";
         }
-        model.addAttribute("book", new Book());
         return "book/create";
     }
 
@@ -53,7 +52,7 @@ public class BookController {
                             @RequestParam String ISBN,
                             @RequestParam String content,
                             @RequestParam String content_type,
-                            @RequestParam String author,
+                            @RequestParam String authorName,
                             @RequestParam String publisher, 
                             @RequestParam String category, 
                             @RequestParam String price,
@@ -62,14 +61,14 @@ public class BookController {
         if (session.getAttribute("user") == null) {
             return "redirect:/user/login";
         }
-        CreateBookResult result = bookService.createBook(subject, description, ISBN, content, content_type, author, publisher, category, price);
+        CreateBookResult result = bookService.createBook(subject, description, ISBN, content, content_type, authorName, publisher, category, price);
 
         if (result.isSuccess()) {
             redirectAttributes.addFlashAttribute("success", result.getMessage());
             return "redirect:/home";
         } else {
             redirectAttributes.addFlashAttribute("error", result.getMessage());
-            return "redirect:/home";
+            return "redirect:/author/create";
         }
     }
 
