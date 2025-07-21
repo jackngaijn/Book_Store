@@ -41,8 +41,14 @@ public class Book {
     @Column(nullable = true)
     private String price;
 
+    //Many books to many users
     @ManyToMany(mappedBy = "books")
     private Set<User> users = new HashSet<>();
+
+    // Many books to one author
+    @ManyToOne
+    @JoinColumn(name = "author_id") // Foreign key in Book table
+    private Author author;
 
     public Book() {}
 
