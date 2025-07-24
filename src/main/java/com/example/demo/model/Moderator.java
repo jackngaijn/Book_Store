@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "moderators")
@@ -15,11 +16,11 @@ public class Moderator {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
-    private Boolean enable = true;
+    @Column(name = "enabled", nullable = false)
+    private boolean enabled = true;
     
-    @Column(nullable = true)
-    private String lastLoginDate;
+    @Column(name = "last_login_date")
+    private LocalDateTime lastLoginDate;
 
     // Constructors
     public Moderator() {}
@@ -27,7 +28,7 @@ public class Moderator {
     public Moderator(String username, String password) {
         this.username = username;
         this.password = password;
-        this.enable = true;
+        this.enabled = true;
     }
 
     // Getters and setters
@@ -55,19 +56,19 @@ public class Moderator {
         this.password = password;
     }
 
-    public Boolean getEnable() {
-        return enable;
+    public boolean isEnabled() {
+        return enabled;
     }
 
-    public void setEnable(Boolean enable) {
-        this.enable = enable;
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
     
-    public String getLastLoginDate() {
+    public LocalDateTime getLastLoginDate() {
         return lastLoginDate;
     }
 
-    public void setLastLoginDate(String lastLoginDate) {
+    public void setLastLoginDate(LocalDateTime lastLoginDate) {
         this.lastLoginDate = lastLoginDate;
     }
 }

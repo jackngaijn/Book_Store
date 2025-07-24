@@ -1,127 +1,67 @@
 package com.example.demo.service;
 
-import com.example.demo.model.Moderator;
-import com.example.demo.model.User;
-import com.example.demo.repository.ModeratorRepository;
-import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import java.util.Collections;
 import java.time.LocalDateTime;
-import java.util.List;
-
+import org.springframework.security.core.userdetails.User;
+import org.springframework.stereotype.Service;
+import com.example.demo.model.Moderator;
+import com.example.demo.repository.ModeratorRepository;
 
 @Service
-public class ModeratorService {
-
+public class ModeratorService implements UserDetailsService {
     @Autowired
-    private ModeratorRepository moderatorRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    public AuthenticationResult authenticateModerator(String username, String password) {
-        Moderator moderator = moderatorRepository.findByUsername(username);
-        if (moderator == null || !password.equals(moderator.getPassword())) {
-            return new AuthenticationResult(false, "Invalid username or password", null);
-        }
-        moderator.setLastLoginDate(LocalDateTime.now().toString());
-        moderatorRepository.save(moderator);
-        return new AuthenticationResult(true, "Login successful", moderator);
-    }
-
-    public RegistrationResult registerModerator(String username, String password) {
-        if (moderatorRepository.findByUsername(username) != null) {
-            return new RegistrationResult(false, "Username already exists");
-        } else {
-            Moderator moderator = new Moderator();
-            moderator.setUsername(username);
-            moderator.setPassword(password);
-            moderatorRepository.save(moderator);
-            return new RegistrationResult(true, "Registration successful");
-        }
-    }
-
-    public List<User> getAllUsers(){
-        return userRepository.findAll();
-    }
-
-    public void approveUser(String username, String moderator){
-        User user = userRepository.findByUsername(username);
-        if (user != null) {
-            user.setStatus("approved");
-            user.setApprovedBy(moderator);
-            user.setApprovedDate(LocalDateTime.now().toString());
-            userRepository.save(user);
-        }
-    }
-
-    public void lockUser(String username){
-        User user = userRepository.findByUsername(username);
-        if (user != null) {
-            user.setStatus("locked");
-            userRepository.save(user);
-        }
-    }
-
-    public void unlockUser(String username){
-        User user = userRepository.findByUsername(username);
-        if (user != null) {
-            user.setStatus("approved");
-            userRepository.save(user);
-        }
-    }
+    private ModeratorRepository moderatorRepo;
     
-    public void resetRetries(String username){
-        User user = userRepository.findByUsername(username);
-        if (user != null) {
-            user.setNumberOfRetries(0);
-            user.setUpdatedDate(LocalDateTime.now().toString());
-            userRepository.save(user);
-        }
-    }
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-
-
-    public static class AuthenticationResult {
-
-        private final boolean success;
-        private final String message;
-        private final Moderator moderator;
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Moderator moderator = moderatorRepo.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         
-        public AuthenticationResult(boolean success, String message, Moderator moderator) {
-            this.success = success;
-            this.message = message;
-            this.moderator = moderator;
+        // Check if moderator account is enabled
+        if (!moderator.isEnabled()) {
+            throw new UsernameNotFoundException("Account is disabled");
         }
-
-        public boolean isSuccess() {
-            return success;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-        public Moderator getModerator() {
-            return moderator;
-        }
+        
+        return new User(
+            moderator.getUsername(),
+            moderator.getPassword(),
+            moderator.isEnabled(),
+            true, // account not expired
+            true, // credentials not expired
+            true, // account not locked
+            Collections.singleton(new SimpleGrantedAuthority("ROLE_MODERATOR"))
+        );
     }
 
-    public static class RegistrationResult {
-        private final boolean success;
-        private final String message;
-
-        public RegistrationResult(boolean success, String message) {
-            this.success = success;
-            this.message = message;
+    public Moderator registerNewModerator(String username, String password) {
+        // Check if username already exists
+        if (moderatorRepo.findByUsername(username).isPresent()) {
+            throw new RuntimeException("Username already exists");
         }
+        
+        // Hash the password using the injected bean
+        String hashed = passwordEncoder.encode(password);
+        Moderator mod = new Moderator();
+        mod.setUsername(username);
+        mod.setPassword(hashed);
+        mod.setEnabled(true);
+        return moderatorRepo.save(mod);
+    }
 
-        public boolean isSuccess() {
-            return success;
-        }
-
-        public String getMessage() {
-            return message;
+    public void updateLastLoginDate(String username) {
+        Moderator moderator = moderatorRepo.findByUsername(username).orElse(null);
+        if (moderator != null) {
+            moderator.setLastLoginDate(LocalDateTime.now());
+            moderatorRepo.save(moderator);
         }
     }
 }
