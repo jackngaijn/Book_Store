@@ -1,46 +1,28 @@
 package com.example.demo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import java.util.Collections;
 import java.time.LocalDateTime;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import com.example.demo.model.Moderator;
+import com.example.demo.model.Role;
 import com.example.demo.repository.ModeratorRepository;
+import com.example.demo.repository.RoleRepository;
+import java.util.Set;
+import java.util.HashSet;
 
 @Service
-public class ModeratorService implements UserDetailsService {
+public class ModeratorService {
     @Autowired
     private ModeratorRepository moderatorRepo;
+
+    @Autowired
+    private RoleRepository roleRepo;
     
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Moderator moderator = moderatorRepo.findByUsername(username)
-            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        
-        // Check if moderator account is enabled
-        if (!moderator.isEnabled()) {
-            throw new UsernameNotFoundException("Account is disabled");
-        }
-        
-        return new User(
-            moderator.getUsername(),
-            moderator.getPassword(),
-            moderator.isEnabled(),
-            true, // account not expired
-            true, // credentials not expired
-            true, // account not locked
-            Collections.singleton(new SimpleGrantedAuthority("ROLE_MODERATOR"))
-        );
-    }
+    // loadUserByUsername method moved to UnifiedAuthService
 
     public Moderator registerNewModerator(String username, String password) {
         // Check if username already exists
@@ -50,12 +32,19 @@ public class ModeratorService implements UserDetailsService {
         
         // Hash the password using the injected bean
         String hashed = passwordEncoder.encode(password);
+        Role moderatorRole = roleRepo.findByRoleName("MODERATOR").orElseThrow(() -> new RuntimeException("Role not found"));
         Moderator mod = new Moderator();
         mod.setUsername(username);
         mod.setPassword(hashed);
         mod.setEnabled(true);
+
+        Set<Role> roles = new HashSet<>();
+        roles.add(moderatorRole);
+        mod.setRoles(roles);
+        
         return moderatorRepo.save(mod);
     }
+
 
     public void updateLastLoginDate(String username) {
         Moderator moderator = moderatorRepo.findByUsername(username).orElse(null);

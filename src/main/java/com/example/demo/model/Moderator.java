@@ -1,10 +1,13 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
+import lombok.NoArgsConstructor;
+import java.util.Set;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "moderators")
+@NoArgsConstructor
+@Table(name = "moderator")
 public class Moderator {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,16 +25,21 @@ public class Moderator {
     @Column(name = "last_login_date")
     private LocalDateTime lastLoginDate;
 
-    // Constructors
-    public Moderator() {}
+    // ManytoMany with Role
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "moderator_role",
+        joinColumns = @JoinColumn(name = "moderator_id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles;
 
-    public Moderator(String username, String password) {
-        this.username = username;
-        this.password = password;
-        this.enabled = true;
+    public Set<Role> getRoles() {
+        return roles;
     }
 
-    // Getters and setters
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
     public Long getId() {
         return id;
     }

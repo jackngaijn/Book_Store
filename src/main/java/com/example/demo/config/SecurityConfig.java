@@ -20,20 +20,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/register", "/login", "/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/", "/login", "/register", "/moderator/login", "/moderator/register", "/moderator/test", "/css/**", "/js/**", "/images/**").permitAll()
                 .anyRequest().authenticated()
-            )
-            .formLogin(form -> form
-                .loginPage("/login")
-                .successHandler(loginSuccessHandler)
-                .failureUrl("/login?error")
-                .permitAll()
             )
             .logout(logout -> logout
                 .logoutSuccessUrl("/login?logout")
                 .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID")
                 .permitAll()
             )
             .sessionManagement(session -> session
@@ -43,7 +37,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // UserDetailsService is automatically provided by @Service annotation on ModeratorService
+    // UserDetailsService is automatically provided by @Service annotation on UnifiedAuthService
 
     @Bean
     public PasswordEncoder passwordEncoder() {
