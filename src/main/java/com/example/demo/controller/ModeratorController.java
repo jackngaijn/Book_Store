@@ -31,8 +31,11 @@ public class ModeratorController {
 
     @PostMapping("/test")
     public ResponseEntity<ApiResponse> test(@RequestBody Moderator moderator) {
+        ApiResponse response = new ApiResponse();
+        response.setMessage("Hello, Worldsdfsdfd!");
+        response.setData(null);
         return ResponseEntity
-        .status(HttpStatus.OK)
-        .body(new ApiResponse("Hello, Worldsdfsdfd!"));
+            .status(HttpStatus.OK)
+            .body(response);
     }
 }

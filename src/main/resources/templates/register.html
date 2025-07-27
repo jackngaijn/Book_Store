@@ -12,32 +12,32 @@
         .error { color: red; }
     </style>
 
-<script>
-    async function handleRegister(event) {
-        event.preventDefault();
-        // Collect form data
-        const username = document.getElementById("username").value;
-        const password = document.getElementById("password").value;
+    <script>
+        async function handleRegister(event) {
+            event.preventDefault();
+            // Collect form data
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
 
-        // POST to your registration API
-        const response = await fetch("/moderator/register", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password })
-        });
+            // POST to your registration API
+            const response = await fetch("/moderator/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
 
-        if(response.ok) {
-            const data = await response.json();
-            console.log(data);
-            alert(data.message);
-            window.location.href = "/login.html"; // Optional: redirect to login page
-        } else {
-            const data = await response.json();
-            console.log(data);
-            alert("Registration failed: " + data.message);
+            if(response.ok) {
+                const data = await response.json();
+                console.log(data);
+                alert(data.message);
+                window.location.href = "/login.html"; // Optional: redirect to login page
+            } else {
+                const data = await response.json();
+                console.log(data);
+                alert("Registration failed: " + data.message);
+            }
         }
-    }
-</script>
+    </script>
 </head>
 <body>
     <div class="form-container">

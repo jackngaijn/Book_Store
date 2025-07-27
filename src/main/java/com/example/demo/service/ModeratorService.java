@@ -28,21 +28,30 @@ public class ModeratorService {
     public ResponseEntity<ApiResponse> registerNewModerator(Moderator moderator) {
         // Validate input
         if (moderator.getUsername() == null || moderator.getUsername().trim().isEmpty()) {
+            ApiResponse response = new ApiResponse();
+            response.setMessage("Username is required!");
+            response.setData(null);
             return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(new ApiResponse("Username is required!"));
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
         }
         
         if (moderator.getPassword() == null || moderator.getPassword().trim().isEmpty()) {
+            ApiResponse response = new ApiResponse();
+            response.setMessage("Password is required!");
+            response.setData(null);
             return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(new ApiResponse("Password is required!"));
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
         }
         // Check if username already exists
         if (moderatorRepo.findByUsername(moderator.getUsername()).isPresent()) {
+            ApiResponse response = new ApiResponse();
+            response.setMessage("Username already exists");
+            response.setData(null);
             return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(new ApiResponse("Username already exists"));
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
         }
         
         // Hash the password using the injected bean
@@ -60,42 +69,60 @@ public class ModeratorService {
         mod.setRoles(roles);
         moderatorRepo.save(mod);
         
+        ApiResponse response = new ApiResponse();
+        response.setMessage("Registration successful!");
+        response.setData(null);
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(new ApiResponse("Registration successful!"));
+            .body(response);
     }
 
     public ResponseEntity<ApiResponse> login(Moderator moderator) {
         // Validate input
         if (moderator.getUsername() == null || moderator.getUsername().trim().isEmpty()) {
+            ApiResponse response = new ApiResponse();
+            response.setMessage("Username is required!");
+            response.setData(null);
             return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(new ApiResponse("Username is required!"));
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
         }
         
         if (moderator.getPassword() == null || moderator.getPassword().trim().isEmpty()) {
+            ApiResponse response = new ApiResponse();
+            response.setMessage("Password is required!");
+            response.setData(null);
             return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(new ApiResponse("Password is required!"));
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
         }
 
         // Check if username exists
         if (!moderatorRepo.findByUsername(moderator.getUsername()).isPresent()) {
+            ApiResponse response = new ApiResponse();
+            response.setMessage("Username not found");
+            response.setData(null);
             return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(new ApiResponse("Username not found"));
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
         }
 
         // Check if password is correct
         if (!passwordEncoder.matches(moderator.getPassword(), moderatorRepo.findByUsername(moderator.getUsername()).get().getPassword())) {
+            ApiResponse response = new ApiResponse();
+            response.setMessage("Invalid password");
+            response.setData(null);
             return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(new ApiResponse("Invalid password"));
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
         }
 
+        ApiResponse response = new ApiResponse();
+        response.setMessage("Login successful!");
+        response.setData(null);
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(new ApiResponse("Login successful!"));
+            .body(response);
     }
 
 
