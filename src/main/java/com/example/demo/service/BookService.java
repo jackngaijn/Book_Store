@@ -8,8 +8,6 @@ import com.example.demo.repository.BookRepository;
 import com.example.demo.dto.BookDTO;
 import com.example.demo.dto.ApiResponse;
 import java.util.stream.Collectors;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
 
 @Service
 public class BookService {
@@ -20,7 +18,7 @@ public class BookService {
         this.bookRepository = bookRepository;
     }
 
-    public ResponseEntity<ApiResponse> getAllBooks() {
+    public ApiResponse getAllBooks() {
         try {
             List<Book> books = bookRepository.findAll();
             
@@ -28,9 +26,7 @@ public class BookService {
                 ApiResponse response = new ApiResponse();
                 response.setMessage("No books found");
                 response.setData(null);
-                return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(response);
+                return response;
             }
             
             List<BookDTO> bookDTOs = books.stream()
@@ -38,33 +34,26 @@ public class BookService {
                 .collect(Collectors.toList());
                 
             ApiResponse response = new ApiResponse();
-                response.setMessage("Books fetched successfully");
-                response.setData(bookDTOs);
-            
-            return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(response);
+            response.setMessage("Books fetched successfully");
+            response.setData(bookDTOs);
+            return response;
             
         } catch (Exception e) {
             ApiResponse response = new ApiResponse();
-            response.setMessage("An error occurred while fetching the books");
+            response.setMessage("An error occurred while fetching books");
             response.setData(null);
-            return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(response);
+            return response;
         }
     }
 
-    public ResponseEntity<ApiResponse> getBookById(Long id) {
+    public ApiResponse getBookById(Long id) {
         try {
             // Business validation
             if (id == null || id <= 0) {
                 ApiResponse response = new ApiResponse();
                 response.setMessage("Invalid book ID provided");
                 response.setData(null);
-                return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(response);
+                return response;
             }
             
             Optional<Book> bookOptional = bookRepository.findById(id);
@@ -73,26 +62,20 @@ public class BookService {
                 ApiResponse response = new ApiResponse();
                 response.setMessage("Book not found");
                 response.setData(null);
-                return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(response);
+                return response;
             }
             
             BookDTO bookDTO = BookDTO.convertToDto(bookOptional.get());
             ApiResponse response = new ApiResponse();
             response.setMessage("Book fetched successfully");
             response.setData(bookDTO);
-            return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(response);
+            return response;
             
         } catch (Exception e) {
             ApiResponse response = new ApiResponse();
             response.setMessage("An error occurred while fetching the book");
             response.setData(null);
-            return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(response);
+            return response;
         }
     }
 }

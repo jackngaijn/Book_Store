@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,22 +15,37 @@ public class BookController {
 
     private final BookService bookService;
 
-    // Constructor injection instead of @Autowired
     public BookController(BookService bookService) {
         this.bookService = bookService;
     }
 
     @GetMapping("/books")
     public ResponseEntity<ApiResponse> getAllBooks() {
-        ResponseEntity<ApiResponse> response = bookService.getAllBooks();
+        ApiResponse response = bookService.getAllBooks();
         
-        return response;
+        // Controller maps business responses to HTTP status codes
+        if (response.getMessage().contains("error")) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        } else if (response.getMessage().contains("No books found")) {
+            return ResponseEntity.ok(response); // 200 with empty result is valid
+        }
+        
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/books/{id}")
     public ResponseEntity<ApiResponse> getBookById(@PathVariable Long id) {
-        ResponseEntity<ApiResponse> response = bookService.getBookById(id);
+        ApiResponse response = bookService.getBookById(id);
         
-        return response;
+        // Controller maps business responses to HTTP status codes
+        if (response.getMessage().contains("not found")) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } else if (response.getMessage().contains("Invalid")) {
+            return ResponseEntity.badRequest().body(response);
+        } else if (response.getMessage().contains("error")) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+        
+        return ResponseEntity.ok(response);
     }
 }

@@ -37,13 +37,13 @@ public class WebController {
 
     @GetMapping("/view-books")
     public String viewBooks(Model model) {
-        model.addAttribute("books", bookService.getAllBooks());
+        model.addAttribute("books", bookService.getAllBooks().getData());
         return "view-books";
     }
 
     @GetMapping("/view-book/{id}")
     public String viewBook(@PathVariable Long id, Model model) {
-        model.addAttribute("book", bookService.getBookById(id));
+        model.addAttribute("book", bookService.getBookById(id).getData());
         return "view-book";
     }
 } 

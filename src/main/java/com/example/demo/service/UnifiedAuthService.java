@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import com.example.demo.model.Moderator;
 import com.example.demo.model.AppUser;
 import com.example.demo.repository.ModeratorRepository;
-import com.example.demo.repository.UserRepository;
+import com.example.demo.repository.AppUserRepository;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.security.core.GrantedAuthority;
@@ -23,7 +23,7 @@ public class UnifiedAuthService implements UserDetailsService {
     private ModeratorRepository moderatorRepo;
     
     @Autowired
-    private UserRepository userRepo;
+    private AppUserRepository appUserRepo;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -46,7 +46,7 @@ public class UnifiedAuthService implements UserDetailsService {
         }
         
         // Then try to find as a regular User
-        Optional<AppUser> appUserOpt = userRepo.findByUsername(username);
+        Optional<AppUser> appUserOpt = appUserRepo.findByUsername(username);
         if (appUserOpt.isPresent()) {
             AppUser appUser = appUserOpt.get();
 
