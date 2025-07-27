@@ -7,9 +7,12 @@ import com.example.demo.model.AppUser;
 import com.example.demo.repository.AppUserRepository;
 import com.example.demo.repository.RoleRepository;
 import com.example.demo.model.Role;
+import com.example.demo.dto.AppUserDTO;
 import java.util.Set;
 import java.util.HashSet;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AppUserService {
@@ -90,4 +93,33 @@ public class AppUserService {
             return response;
         }
     }
+
+    public ApiResponse getAllUsers() {
+        try {
+            List<AppUser> users = appUserRepository.findAll();
+
+        if (users.isEmpty()) {
+            ApiResponse response = new ApiResponse();
+            response.setMessage("No users found");
+            response.setData(null);
+            return response;
+        }
+
+        List<AppUserDTO> userDTOs = users.stream()
+            .map(AppUserDTO::convertToDto)
+            .collect(Collectors.toList());
+
+        ApiResponse response = new ApiResponse();
+        response.setMessage("Users fetched successfully");
+        response.setData(userDTOs);
+        return response;
+        
+        } catch (Exception e) {
+            ApiResponse response = new ApiResponse();
+            response.setMessage(e.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
 }
