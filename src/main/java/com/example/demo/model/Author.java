@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.EqualsAndHashCode;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -14,21 +14,17 @@ import java.util.Set;
 @Getter
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table(name = "role")
-public class Role {
+@Table(name = "author")
+public class Author {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
     private Long id;
-    
-    @Column(nullable = false, unique = true)
-    private String roleName;
+    private String name;
+    private String email;
+    private String country;
 
-    // ManytoMany with Moderator
-    @ManyToMany(mappedBy = "roles")
-    private Set<Moderator> moderators;
-
-    // ManytoMany with AppUser
-    @ManyToMany(mappedBy = "roles")
-    private Set<AppUser> appUsers;
+    // One author has many books
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
+    private List<Book> books;
 }
