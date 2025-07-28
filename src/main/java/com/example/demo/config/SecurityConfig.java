@@ -22,8 +22,8 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/**", "/dashboard", "/login", "/register", "/moderator/**", "/css/**", "/js/**", "/images/**").permitAll()
-                .anyRequest().authenticated()
+                .requestMatchers("/view-books", "/view-book/**", "/api/v1/**").authenticated()
+                .anyRequest().permitAll()
             )
             .formLogin(form -> form
                 .loginPage("/login")
@@ -31,6 +31,7 @@ public class SecurityConfig {
                 .failureUrl("/login?error=true")
                 .permitAll()
             )
+
             .logout(logout -> logout
                 .logoutSuccessUrl("/login?logout")
                 .invalidateHttpSession(true)
