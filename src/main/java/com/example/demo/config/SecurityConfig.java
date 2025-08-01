@@ -1,53 +1,49 @@
 package com.example.demo.config;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import com.example.demo.service.CustomUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    
     @Autowired
-    @Lazy
-    private LoginSuccessHandler loginSuccessHandler;
-
+    private CustomUserDetailsService customUserDetailsService;
+    
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+    
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/view-books", "/view-book/**", "/api/v1/**").authenticated()
-                .anyRequest().permitAll()
+            .authorizeHttpRequests((authz) -> authz
+                .requestMatchers("/", "/hello", "/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/admin/register").permitAll()
+                // .requestMatchers("/user/**").hasRole("USER")
+                // .requestMatchers("/admin/**").hasRole("ADMIN")
+                // .anyRequest().authenticated()
             )
-            .formLogin(form -> form
-                .loginPage("/login")
-                .successHandler(loginSuccessHandler)
-                .failureUrl("/login?error=true")
+            .formLogin((form) -> form
+                .defaultSuccessUrl("/hello", true)
                 .permitAll()
             )
-
-            .logout(logout -> logout
-                .logoutSuccessUrl("/login?logout")
-                .invalidateHttpSession(true)
+            .logout((logout) -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/")
                 .permitAll()
             )
-            .sessionManagement(session -> session
-                .maximumSessions(1)
-                .maxSessionsPreventsLogin(false)
-            );
+            .userDetailsService(customUserDetailsService);
+        
         return http.build();
-    }
-
-    // UserDetailsService is automatically provided by @Service annotation on UnifiedAuthService
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }

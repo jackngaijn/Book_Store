@@ -1,34 +1,35 @@
 package com.example.demo.model;
 
-import jakarta.persistence.*;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Table;
+import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Column;
+import jakarta.persistence.ManyToMany;
+import java.util.Set;
+import java.util.HashSet;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.EqualsAndHashCode;
-import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 
 @Entity
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table(name = "role")
+@Table(name = "roles")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @EqualsAndHashCode.Include
     private Long id;
     
-    @Column(nullable = false, unique = true)
-    private String roleName;
-
-    // ManytoMany with Moderator
-    @ManyToMany(mappedBy = "roles")
-    private Set<Moderator> moderators;
-
-    // ManytoMany with AppUser
-    @ManyToMany(mappedBy = "roles")
-    private Set<AppUser> appUsers;
+    @Column(unique = true, nullable = false)
+    private String name; // e.g., ROLE_USER, ROLE_ADMIN, ROLE_MODERATOR
 }
