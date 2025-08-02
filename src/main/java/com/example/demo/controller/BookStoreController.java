@@ -16,6 +16,8 @@ import com.example.demo.repository.CategoryRepository;
 import java.util.Map;
 import com.example.demo.repository.AuthorRepository;
 import com.example.demo.model.Author;
+import com.example.demo.service.BookStoreService;
+import com.example.demo.dto.BookDTO;
 
 @RestController
 public class BookStoreController {
@@ -27,6 +29,9 @@ public class BookStoreController {
 
     @Autowired
     private AuthorRepository authorRepository;
+
+    @Autowired
+    private BookStoreService bookStoreService;
 
     // remove book
     @DeleteMapping("/bookstore/books/{id}")
@@ -95,19 +100,13 @@ public class BookStoreController {
 
     // get all books
     @GetMapping("/bookstore/books")
-    public List<Book> getAllBooks() {
-        // get all books with category and author
-        List<Book> books = bookRepository.findAll();
-        for (Book book : books) {
-            book.setCategory(categoryRepository.findById(book.getCategory().getId()).orElseThrow(() -> new RuntimeException("Category not found")));
-            book.setAuthor(authorRepository.findById(book.getAuthor().getId()).orElseThrow(() -> new RuntimeException("Author not found")));
-        }
-        return books;
+    public List<BookDTO> getAllBooks() {
+        return bookStoreService.getAllBooks();
     }
 
     // get book by id
     @GetMapping("/bookstore/books/{id}")
-    public Book getBookById(@PathVariable Long id) {    
+    public Book getBookById(@PathVariable Long id) {
         Book book = bookRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Book not found"));
         return book;

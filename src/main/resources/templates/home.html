@@ -1,75 +1,258 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Bookstore Home</title>
+    <title>Book List</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <!-- Simple Navigation Bar -->
-    <div style="background-color: #f1f1f1; padding: 15px;">
-        <a href="/home" style="text-decoration: none; color: black; margin-right: 20px;">Home</a>
-        <button onclick="document.getElementById('loginModal').style.display='block'" style="float: right;">Login</button>
-    </div>
-
-    <!-- Main Content -->
-    <div style="padding: 20px;">
-        <h1>Welcome to Our Bookstore</h1>
-        <p>Discover your next favorite book with us!</p>
-    </div>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">BookStore</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#loginModal" id="loginButton">
+                            Login
+                        </button>
+                        <button class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#logoutModal" id="logoutButton">
+                            Logout
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
     <!-- Login Modal -->
-    <div id="loginModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 20px; border: 1px solid black;">
-        <form action="/login" method="post">
-            <div>
-                <label for="username">Username:</label><br>
-                <input type="text" id="username" name="username" required>
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Login</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Login Type Tabs -->
+                    <ul class="nav nav-tabs" id="loginTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="appuser-tab" data-bs-toggle="tab" data-bs-target="#appuser-login" type="button" role="tab" aria-controls="appuser-login" aria-selected="true">
+                                User Login
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin-login" type="button" role="tab" aria-controls="admin-login" aria-selected="false">
+                                Admin Login
+                            </button>
+                        </li>
+                    </ul>
+
+                    <!-- Tab Content -->
+                    <div class="tab-content" id="loginTabContent">
+                        <!-- AppUser Login Form -->
+                        <div class="tab-pane fade show active" id="appuser-login" role="tabpanel" aria-labelledby="appuser-tab">
+                            <form id="appUserLoginForm" class="mt-3">
+                                <div class="mb-3">
+                                    <label for="appUserUsername" class="form-label">Username</label>
+                                    <input type="username" class="form-control" id="appUserUsername" name="username" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="appUserPassword" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="appUserPassword" name="password" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">Login as User</button>
+                            </form>
+                        </div>
+
+                        <!-- Admin Login Form -->
+                        <div class="tab-pane fade" id="admin-login" role="tabpanel" aria-labelledby="admin-tab">
+                            <form id="adminLoginForm" class="mt-3">
+                                <div class="mb-3">
+                                    <label for="adminUsername" class="form-label">Admin Username</label>
+                                    <input type="username" class="form-control" id="adminUsername" name="username" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="adminPassword" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="adminPassword" name="password" required>
+                                </div>
+                                <button type="submit" class="btn btn-danger w-100">Login as Admin</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Registration Links -->
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            Don't have an account? 
+                            <a href="#" id="registerLink">Register here</a>
+                        </small>
+                    </div>
+                </div>
             </div>
-            <div style="margin-top: 10px;">
-                <label for="password">Password:</label><br>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <div style="margin-top: 15px;">
-                <button type="submit">Login</button>
-                <button type="button" onclick="document.getElementById('loginModal').style.display='none'">Close</button>
-            </div>
-        </form>
+        </div>
     </div>
 
-    <!-- Book Table -->
-    <div style="padding: 20px;">
-        <h2>Our Book Collection</h2>
-        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-            <thead>
-                <tr style="background-color: #f1f1f1;">
-                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Subject</th>
-                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Author</th>
-                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Category</th>
-                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Price</th>
-                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Description</th>
-                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="book : ${books}">
-                    <td style="padding: 12px; border: 1px solid #ddd;" th:text="${book.subject}"></td>
-                    <td style="padding: 12px; border: 1px solid #ddd;" th:text="${book.author.name}"></td>
-                    <td style="padding: 12px; border: 1px solid #ddd;" th:text="${book.category.name}"></td>
-                    <td style="padding: 12px; border: 1px solid #ddd;" th:text="${book.price}"></td>
-                    <td style="padding: 12px; border: 1px solid #ddd;" th:text="${book.description}"></td>
-                    <td style="padding: 12px; border: 1px solid #ddd;">
-                        <button onclick="showBookInfo(this)" 
-                                th:data-subject="${book.subject}"
-                                th:data-author="${book.author.name}"
-                                th:data-category="${book.category.name}" 
-                                th:data-price="${book.price}"
-                                th:data-description="${book.description}"
-                                th:data-isbn="${book.isbn}"
-                                th:data-publisher="${book.publisher}"
-                                style="padding: 5px 10px; cursor: pointer;">View Details</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="container mt-4">
+        <h1 class="mb-4">Book List</h1>
+        <div class="table-responsive">
+            <table id="booksTable" class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Subject</th>
+                        <th>Description</th>
+                        <th>ISBN</th>
+                        <th>Content</th>
+                        <th>Content Type</th>
+                        <th>Publisher</th>
+                        <th>Created Date</th>
+                        <th>Price</th>
+                        <th>Category</th>
+                        <th>Author</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows will be inserted here by JavaScript -->
+                </tbody>
+            </table>
+        </div>
     </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Fetch books from the REST API and populate the table
+        fetch('/bookstore/books')
+            .then(response => response.json())
+            .then(books => {
+                const tbody = document.querySelector('#booksTable tbody');
+                books.forEach(book => {
+                    console.log('Book:', book);
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${book.subject}</td>
+                        <td>${book.description}</td>
+                        <td>${book.isbn}</td>
+                        <td>${book.content}</td>
+                        <td>${book.contentType}</td>
+                        <td>${book.publisher}</td>
+                        <td>${book.createdDate}</td>
+                        <td>$${book.price}</td>
+                        <td>${book.category}</td>
+                        <td>${book.author}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching books:', error);
+                const tbody = document.querySelector('#booksTable tbody');
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="10" class="text-center text-danger">Failed to load data</td>`;
+                tbody.appendChild(row);
+            });
+
+        // Handle AppUser Login Form Submission
+        document.getElementById('appUserLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            
+            // Here you would typically send a POST request to your login endpoint
+            console.log('AppUser Login:', {
+                username: formData.get('username'),
+                password: formData.get('password')
+            });
+            
+            // Example login request (you'll need to implement the backend endpoint)
+            fetch('/appuser/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: formData.get('username'),
+                    password: formData.get('password')
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('AppUser Login Response:', data);
+                bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+                alert(data.username + ' Login successful!');
+            })
+            .catch(error => {
+                console.error('Login error:', error);
+                alert('Login error occurred');
+            });
+        });
+
+        // Handle Admin Login Form Submission
+        document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            
+            console.log('Admin Login:', {
+                username: formData.get('username'),
+                password: formData.get('password')
+            });
+            
+            // Example login request (you'll need to implement the backend endpoint)
+            fetch('/admin/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: formData.get('username'),
+                    password: formData.get('password')
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+                    alert('Admin login successful!');
+                } else {
+                    alert('Login failed: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Login error:', error);
+                alert('Login error occurred');
+            });
+        });
+
+        // Handle registration link click
+        document.getElementById('registerLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            // Close login modal and open registration modal (you can implement this)
+            bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+            alert('Registration feature coming soon!');
+        });
+
+        // Handle logout button click
+        document.getElementById('logoutButton').addEventListener('click', function(e) {
+            // logout
+            fetch('/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            e.preventDefault();
+            bootstrap.Modal.getInstance(document.getElementById('logoutModal')).hide();
+            alert('Logout successful!');
+        });
+    </script>
 </body>
 </html>
-

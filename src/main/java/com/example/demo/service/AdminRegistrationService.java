@@ -49,7 +49,7 @@ public class AdminRegistrationService {
 
         // Create new admin
         Admin newAdmin = new Admin();
-        newAdmin.setUsername(username);
+        newAdmin.setUsername("ADMIN_" + username);
         newAdmin.setPassword(passwordEncoder.encode(password));
         newAdmin.setEmail(email);
         newAdmin.setEnabled(true);

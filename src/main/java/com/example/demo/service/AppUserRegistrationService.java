@@ -50,7 +50,7 @@ public class AppUserRegistrationService {
         
         // Create new app user
         AppUser newAppUser = new AppUser();
-        newAppUser.setUsername(username);
+        newAppUser.setUsername("USER_" + username);
         newAppUser.setPassword(passwordEncoder.encode(password));
         newAppUser.setEmail(email);
         newAppUser.setEnabled(true);

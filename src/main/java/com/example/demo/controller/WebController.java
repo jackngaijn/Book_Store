@@ -1,16 +1,12 @@
 package com.example.demo.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.ui.Model;
-import com.example.demo.repository.BookRepository;
 
 @Controller
 public class WebController {
 
-    @Autowired
-    private BookRepository bookRepository;
     
     @GetMapping("/")
     public String index() {
@@ -18,8 +14,7 @@ public class WebController {
     }
     
     @GetMapping("/home")
-    public String home(Model model) {
-        model.addAttribute("books", bookRepository.findAll());
+    public String home() {
         return "home";
     }
 
