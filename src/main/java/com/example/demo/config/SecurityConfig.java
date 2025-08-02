@@ -28,10 +28,10 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests((authz) -> authz
                 .requestMatchers("/", "/hello", "/css/**", "/js/**", "/images/**").permitAll()
-                .requestMatchers("/admin/register").permitAll()
+                .requestMatchers("/admin/register", "/appuser/register", "/test/admin").permitAll()
                 // .requestMatchers("/user/**").hasRole("USER")
                 // .requestMatchers("/admin/**").hasRole("ADMIN")
-                // .anyRequest().authenticated()
+                .anyRequest().permitAll()
             )
             .formLogin((form) -> form
                 .defaultSuccessUrl("/hello", true)

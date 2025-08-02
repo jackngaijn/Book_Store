@@ -6,11 +6,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.model.Admin;
 import com.example.demo.model.Role;
+import com.example.demo.model.AdminRole;
 import com.example.demo.repository.AdminRepository;
 import com.example.demo.repository.RoleRepository;
-import java.util.Optional;
-import java.util.Set;
-import java.util.HashSet;
+import com.example.demo.repository.AdminRoleRepository;
 import com.example.demo.dto.ApiResponse;
 
 @Service
@@ -22,6 +21,9 @@ public class AdminRegistrationService {
     
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private AdminRoleRepository adminRoleRepository;
     
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -32,40 +34,36 @@ public class AdminRegistrationService {
         String email = admin.getEmail();
         
         ApiResponse response = new ApiResponse();
-        // Check if username already exists
+        // Check if username already exists, if so return error
         if (adminRepository.findByUsername(username).isPresent()) {
             response.setMessage("Username already exists!");
             response.setData(null);
             return response;
         }
-            
+        // Check if role exists, if not create it
+        if (roleRepository.findByName("ROLE_ADMIN").isEmpty()) {
+            Role adminRole = new Role();
+            adminRole.setName("ROLE_ADMIN");
+            roleRepository.save(adminRole);
+        }
+
         // Create new admin
         Admin newAdmin = new Admin();
         newAdmin.setUsername(username);
         newAdmin.setPassword(passwordEncoder.encode(password));
         newAdmin.setEmail(email);
         newAdmin.setEnabled(true);
-        
-        // Assign ADMIN role
-        Optional<Role> adminRoleOpt = roleRepository.findByName("ROLE_ADMIN");
-        Role adminRole;
-        
-        if (adminRoleOpt.isPresent()) {
-            adminRole = adminRoleOpt.get();
-            System.out.println("Found existing ROLE_ADMIN: " + adminRole.getName());
-        } else {
-            // Create ADMIN role if it doesn't exist
-            adminRole = new Role();
-            adminRole.setName("ROLE_ADMIN");
-            adminRole = roleRepository.save(adminRole);
-            System.out.println("Created new ROLE_ADMIN: " + adminRole.getName());
-        }
-
-        
-        
         adminRepository.save(newAdmin);
+
+        // Create new admin role
+        AdminRole adminRole = new AdminRole();
+        adminRole.setAdmin(newAdmin);
+        adminRole.setRole(roleRepository.findByName("ROLE_ADMIN").get());
+        adminRoleRepository.save(adminRole);
+
+        // Return success message
         response.setMessage("Admin " + username + " created successfully");
         response.setData(newAdmin);
         return response;
     }
-} 
+}   

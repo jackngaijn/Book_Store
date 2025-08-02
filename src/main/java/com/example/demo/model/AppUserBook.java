@@ -1,38 +1,36 @@
 package com.example.demo.model;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "appuser_role")
-@AllArgsConstructor
-@NoArgsConstructor
+@Table(name = "appuser_book")
 @Getter
 @Setter
-public class AppUserRole {
-    
+@NoArgsConstructor
+@AllArgsConstructor
+public class AppUserBook {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // many to one relationship with AppUser
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "appuser_id")
-    @JsonIgnore  // Prevent circular reference back to AppUser
     private AppUser appUser;
 
-    // many to one relationship with Role
     @ManyToOne
-    @JoinColumn(name = "role_id")
-    private Role role;
+    @JsonIgnore
+    @JoinColumn(name = "book_id")
+    private Book book;
 }

@@ -6,26 +6,21 @@ import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.JoinColumn;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.CascadeType;
+import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "appusers")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@Table(name = "appuser")
 public class AppUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,4 +32,13 @@ public class AppUser {
     private String email;
     private boolean enabled = true;
 
+    // One to many relationship with AppUserRole
+    @JsonIgnore
+    @OneToMany(mappedBy = "appUser", cascade = CascadeType.ALL)
+    private List<AppUserRole> roles;
+
+    // One to many relationship with AppUserBook
+    @JsonIgnore
+    @OneToMany(mappedBy = "appUser", cascade = CascadeType.ALL)
+    private List<AppUserBook> books;
 }

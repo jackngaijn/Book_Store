@@ -4,7 +4,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.util.Collection;
-import java.util.stream.Collectors;
 import com.example.demo.model.AppUser;
 import com.example.demo.model.Admin;
 
@@ -15,26 +14,26 @@ public class CustomUserDetails implements UserDetails {
     private boolean enabled;
     private String userType; // "USER" or "ADMIN"
     
-    // Constructor for User
-    public CustomUserDetails(AppUser user) {
-        this.username = user.getUsername();
-        this.password = user.getPassword();
-        this.enabled = user.isEnabled();
-        this.userType = "USER";
-        this.authorities = user.getRoles().stream()
-            .map(role -> new SimpleGrantedAuthority(role.getName()))
-            .collect(Collectors.toList());
-    }
-    
-    // Constructor for Admin
-    public CustomUserDetails(Admin admin) {
+    // Constructor for Admin with specific roles
+    public CustomUserDetails(Admin admin, Collection<String> roleNames) {
         this.username = admin.getUsername();
         this.password = admin.getPassword();
         this.enabled = admin.isEnabled();
         this.userType = "ADMIN";
-        this.authorities = admin.getRoles().stream()
-            .map(role -> new SimpleGrantedAuthority(role.getName()))
-            .collect(Collectors.toList());
+        this.authorities = roleNames.stream()
+            .map(roleName -> new SimpleGrantedAuthority(roleName))
+            .toList();
+    }
+    
+    // Constructor for User with specific roles
+    public CustomUserDetails(AppUser user, Collection<String> roleNames) {
+        this.username = user.getUsername();
+        this.password = user.getPassword();
+        this.enabled = user.isEnabled();
+        this.userType = "USER";
+        this.authorities = roleNames.stream()
+            .map(roleName -> new SimpleGrantedAuthority(roleName))
+            .toList();
     }
     
     @Override

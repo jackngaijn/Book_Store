@@ -9,16 +9,30 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinColumn;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "admin_roles")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
+@Table(name = "admin_role")
 public class AdminRole {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String roleName;
+
+    // many to one relationship with Admin
+    @ManyToOne
+    @JoinColumn(name = "admin_id")
+    @JsonIgnore  // Prevent circular reference back to Admin
+    private Admin admin;
+
+    // many to one relationship with Role
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    @JsonIgnore  // Prevent circular reference back to Role
+    private Role role;
 }

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bookstore Home</title>
+</head>
+<body>
+    <!-- Simple Navigation Bar -->
+    <div style="background-color: #f1f1f1; padding: 15px;">
+        <a href="/home" style="text-decoration: none; color: black; margin-right: 20px;">Home</a>
+        <button onclick="document.getElementById('loginModal').style.display='block'" style="float: right;">Login</button>
+    </div>
+
+    <!-- Main Content -->
+    <div style="padding: 20px;">
+        <h1>Welcome to Our Bookstore</h1>
+        <p>Discover your next favorite book with us!</p>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 20px; border: 1px solid black;">
+        <form action="/login" method="post">
+            <div>
+                <label for="username">Username:</label><br>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div style="margin-top: 10px;">
+                <label for="password">Password:</label><br>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div style="margin-top: 15px;">
+                <button type="submit">Login</button>
+                <button type="button" onclick="document.getElementById('loginModal').style.display='none'">Close</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Book Table -->
+    <div style="padding: 20px;">
+        <h2>Our Book Collection</h2>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <thead>
+                <tr style="background-color: #f1f1f1;">
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Subject</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Author</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Category</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Price</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="book : ${books}">
+                    <td style="padding: 12px; border: 1px solid #ddd;" th:text="${book.subject}"></td>
+                    <td style="padding: 12px; border: 1px solid #ddd;" th:text="${book.author.name}"></td>
+                    <td style="padding: 12px; border: 1px solid #ddd;" th:text="${book.category.name}"></td>
+                    <td style="padding: 12px; border: 1px solid #ddd;" th:text="${book.price}"></td>
+                    <td style="padding: 12px; border: 1px solid #ddd;" th:text="${book.description}"></td>
+                    <td style="padding: 12px; border: 1px solid #ddd;">
+                        <button onclick="showBookInfo(this)" 
+                                th:data-subject="${book.subject}"
+                                th:data-author="${book.author.name}"
+                                th:data-category="${book.category.name}" 
+                                th:data-price="${book.price}"
+                                th:data-description="${book.description}"
+                                th:data-isbn="${book.isbn}"
+                                th:data-publisher="${book.publisher}"
+                                style="padding: 5px 10px; cursor: pointer;">View Details</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+
