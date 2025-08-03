@@ -27,6 +27,22 @@
                         <button class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#logoutModal" id="logoutButton">
                             Logout
                         </button>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                fetch('/currentuser')
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        console.log('Current user:', data);
+                                        if (data == true) {
+                                            document.getElementById('loginButton').disabled = true;
+                                            document.getElementById('logoutButton').disabled = false;
+                                        } else {
+                                            document.getElementById('loginButton').disabled = false;
+                                            document.getElementById('logoutButton').disabled = true;
+                                        }
+                                    })
+                            });
+                        </script>
                     </li>
                 </ul>
             </div>
@@ -186,8 +202,8 @@
             .then(response => response.json())
             .then(data => {
                 console.log('AppUser Login Response:', data);
-                bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
-                alert(data.username + ' Login successful!');
+                alert(data.message);
+                window.location.reload();
             })
             .catch(error => {
                 console.error('Login error:', error);
@@ -219,8 +235,9 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+                    console.log('Admin Login Response:', data);
                     alert('Admin login successful!');
+                    window.location.reload();
                 } else {
                     alert('Login failed: ' + data.message);
                 }
@@ -249,9 +266,14 @@
                 },
             })
             .then(response => response.json())
-            e.preventDefault();
-            bootstrap.Modal.getInstance(document.getElementById('logoutModal')).hide();
-            alert('Logout successful!');
+            .then(data => {
+                alert('Logout successful!');
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Logout error:', error);
+                alert('Logout failed');
+            });
         });
     </script>
 </body>

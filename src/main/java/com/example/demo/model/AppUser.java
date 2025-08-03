@@ -29,8 +29,18 @@ public class AppUser {
     @Column(unique = true, nullable = false)
     private String username;
     private String password;
+    private String name;
     private String email;
+    private String telephone;
+    private String mobile;
+    private String address;
     private boolean enabled = true;
+    private java.time.LocalDateTime createdDate;
+    private java.time.LocalDateTime updatedDate;
+    private java.time.LocalDateTime approvedDate;
+    private String approvedBy;
+    private int numberOfRetries = 0;
+    private java.time.LocalDateTime lastLoginDate;
 
     // One to many relationship with AppUserRole
     @JsonIgnore

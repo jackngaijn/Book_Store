@@ -29,17 +29,18 @@ public class LoginController {
         return loginService.adminLogin(admin, request);
     }
 
-    @GetMapping("/logout")
+    @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
-
-        if (SecurityContextHolder.getContext().getAuthentication() != null) {
-            HttpSession session = request.getSession(false); // Get session if exists
-            if (session != null) {
-                session.invalidate(); // This clears all session data, including authentication
-            }
-            SecurityContextHolder.clearContext();
-            return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
         }
-        return ResponseEntity.ok(Map.of("message", "Already logged out"));
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
+    }
+
+    @GetMapping("/currentuser")
+    public Boolean currentUser(HttpServletRequest request) {
+        return !SecurityContextHolder.getContext().getAuthentication().getName().equals("anonymousUser");
     }
 }

@@ -30,7 +30,13 @@ public class AppUserRegistrationService {
     public ApiResponse registerAppUser(AppUser appUser) {
         String username = appUser.getUsername();
         String password = appUser.getPassword();
+        String name = appUser.getName();
         String email = appUser.getEmail();
+        String telephone = appUser.getTelephone();
+        String mobile = appUser.getMobile();
+        String address = appUser.getAddress();
+        java.time.LocalDateTime createdDate = java.time.LocalDateTime.now();
+        java.time.LocalDateTime updatedDate = java.time.LocalDateTime.now();
         
         ApiResponse response = new ApiResponse();
 
@@ -52,8 +58,13 @@ public class AppUserRegistrationService {
         AppUser newAppUser = new AppUser();
         newAppUser.setUsername("USER_" + username);
         newAppUser.setPassword(passwordEncoder.encode(password));
+        newAppUser.setName(name);
         newAppUser.setEmail(email);
-        newAppUser.setEnabled(true);
+        newAppUser.setTelephone(telephone);
+        newAppUser.setMobile(mobile);
+        newAppUser.setAddress(address);
+        newAppUser.setCreatedDate(createdDate);
+        newAppUser.setUpdatedDate(updatedDate);
 
         // Create new app user role
         AppUserRole appUserRole = new AppUserRole();
