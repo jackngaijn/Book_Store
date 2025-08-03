@@ -17,11 +17,15 @@ import com.example.demo.repository.RoleRepository;
 import com.example.demo.model.AdminRole;
 import com.example.demo.model.AppUserRole;
 import java.util.List;
+import com.example.demo.repository.BookRepository;
 
 @Controller
 public class TestTableController {
     @Autowired
     private AdminRepository adminRepository;
+
+    @Autowired
+    private BookRepository bookRepository;
 
     @Autowired
     private AppUserRepository appUserRepository;

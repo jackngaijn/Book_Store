@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.security.core.Authentication;
 
 @RestController
 public class LoginController {
@@ -42,5 +43,16 @@ public class LoginController {
     @GetMapping("/currentuser")
     public Boolean currentUser(HttpServletRequest request) {
         return !SecurityContextHolder.getContext().getAuthentication().getName().equals("anonymousUser");
+    }
+
+    @GetMapping("/debug/auth")
+    public ResponseEntity<?> debugAuth() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return ResponseEntity.ok(Map.of(
+            "isAuthenticated", auth.isAuthenticated(),
+            "username", auth.getName(),
+            "authorities", auth.getAuthorities(),
+            "principal", auth.getPrincipal().getClass().getSimpleName()
+        ));
     }
 }

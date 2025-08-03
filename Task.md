@@ -1,7 +1,7 @@
 # Bookstore CRUD API Checklist
 
-- [ ] **POST /admin/register** - admin registration
-- [ ] **POST /appuser/register** - appuser registration 
+- [x] **POST /admin/register** - admin registration
+- [x] **POST /appuser/register** - appuser registration 
 - [x] **POST /bookstore/create-book** - Create a new book
 - [x] **GET /bookstore/books** - Get all books
 - [x] **GET /bookstore/books/{id}** - Get book by ID
@@ -19,3 +19,10 @@
 - [ ] **DELETE /bookstore/authors/{id}** - Delete author
 - [x] test the relationship between author category book.
 - [ ] create home page
+
+# Debug 
+login in home 
+    -> /currentuser (check if username is not anonymousUser)
+    -> /debug/auth (show Authentication object details)
+
+logout clear session and clean SecurityContextHolder

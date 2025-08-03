@@ -16,20 +16,19 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Optional;
 import com.example.demo.repository.AppUserRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.demo.repository.AdminRepository;
 
 @Service
 public class LoginService {
     private final AuthenticationManager authenticationManager;
     private final AppUserRepository appUserRepository;
+    private final AdminRepository adminRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
-    public LoginService(AuthenticationManager authenticationManager, AppUserRepository appUserRepository) {
+        public LoginService(AuthenticationManager authenticationManager, AppUserRepository appUserRepository, AdminRepository adminRepository) {
         this.authenticationManager = authenticationManager;
         this.appUserRepository = appUserRepository;
+        this.adminRepository = adminRepository;
     }
 
     public ResponseEntity<?> appUserLogin(AppUser appUser, HttpServletRequest request) {
@@ -37,55 +36,71 @@ public class LoginService {
         if(!appUserOptional.isPresent()){
             return ResponseEntity.status(HttpStatus.OK)
                     .body(Map.of("message", "user not found"));
-                }
-        AppUser user = appUserOptional.get();
-        // check if password is correct
-        System.out.println("user.getPassword(): " + user.getPassword());
-        System.out.println("appUser.getPassword(): " + passwordEncoder.encode(appUser.getPassword()));
-        if(!user.getPassword().equals(passwordEncoder.encode(appUser.getPassword()))){
-            user.setNumberOfRetries(user.getNumberOfRetries() + 1);
-            appUserRepository.save(user);
-            return ResponseEntity.status(HttpStatus.OK)
-            .body(Map.of("message", "Invalid username or password"));
         }
-        // check if user is approved
-        if(user.getApprovedBy() == null){
+        AppUser user_from_db = appUserOptional.get();
+        
+        // Check business rules BEFORE authentication
+        if(user_from_db.getApprovedBy() == null){
             return ResponseEntity.status(HttpStatus.OK)
                     .body(Map.of("message", "You account was not approved"));
         }
-        // check if user is locked
-        if(user.getNumberOfRetries() >= 5){
+        if(user_from_db.getNumberOfRetries() > 4){
             return ResponseEntity.status(HttpStatus.OK)
                     .body(Map.of("message", "You account was locked due to too many login attempts"));
         }
 
-
-        
-
-
         try {
+            // This does the REAL password validation
             Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                     "USER_" + appUser.getUsername(),
                     appUser.getPassword()
                 )
             );
+            
+            // Reset retry count on successful login
+            user_from_db.setNumberOfRetries(0);
+            appUserRepository.save(user_from_db);
+            
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            // Store authentication in session
             HttpSession session = request.getSession(true);
             session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
                 SecurityContextHolder.getContext());
+            
+            // For api debugging
+            // return ResponseEntity.ok(Map.of(
+            //     "username", user.getUsername(),
+            //     "roles", authentication.getAuthorities()
+            // ));
+
+            // For frontend show message
             return ResponseEntity.ok(Map.of(
-                "username", appUser.getUsername(),
-                "roles", authentication.getAuthorities()
+                "message", appUser.getUsername() + " logged in successfully"
             ));
         } catch (AuthenticationException ex) {
+            // Increment retry count on failed authentication
+            user_from_db.setNumberOfRetries(user_from_db.getNumberOfRetries() + 1);
+            appUserRepository.save(user_from_db);
+            if(user_from_db.getNumberOfRetries() == 5){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("message", "You account was locked due to too many login attempts"));
+            }
+            if(user_from_db.getNumberOfRetries() < 5){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("message", "You still have " + (5 - user_from_db.getNumberOfRetries()) + " attempts left"));
+            }
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("message", "Invalid username or password"));
         }
     }
     
     public ResponseEntity<?> adminLogin(Admin admin, HttpServletRequest request) {
+        Optional<Admin> adminOptional = adminRepository.findByUsername("ADMIN_" + admin.getUsername());
+        if(!adminOptional.isPresent()){
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(Map.of("message", "admin not found"));
+        }
+
         try {
             Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -97,13 +112,12 @@ public class LoginService {
             HttpSession session = request.getSession(true);
             session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
                 SecurityContextHolder.getContext());
-            return ResponseEntity.ok(Map.of(
-                "username", admin.getUsername(),
-                "roles", authentication.getAuthorities()
-            ));
+                return ResponseEntity.ok(Map.of(
+                    "message", admin.getUsername() + " logged in successfully"
+                ));
         } catch (AuthenticationException ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Invalid username or password"));
+                    .body(Map.of("message", "Invalid username or password"));
         }
     }
 }
