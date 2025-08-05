@@ -15,6 +15,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Column;
 import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
@@ -39,12 +40,12 @@ public class Book {
     private java.util.Date createdDate;
     private double price;
 
-    // #################### AppUserBook ######################
+    // #################### shelf (AppUserBook) ######################
     // one to many relationship with user book
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<AppUserBook> userBooks;
-    // #################### AppUserBook ######################
+    private List<Shelf> userBooks;
+    // #################### shelf (AppUserBook) ######################
 
     // #################### Author ######################
     // many to one relationship with author

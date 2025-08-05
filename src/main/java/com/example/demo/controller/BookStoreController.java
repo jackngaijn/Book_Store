@@ -18,6 +18,12 @@ import com.example.demo.repository.AuthorRepository;
 import com.example.demo.model.Author;
 import com.example.demo.service.BookStoreService;
 import com.example.demo.dto.BookDTO;
+import com.example.demo.model.Shelf;
+import com.example.demo.repository.ShelfRepository;
+import com.example.demo.model.AppUser;
+import com.example.demo.repository.AppUserRepository;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 public class BookStoreController {
@@ -32,6 +38,12 @@ public class BookStoreController {
 
     @Autowired
     private BookStoreService bookStoreService;
+
+    @Autowired
+    private ShelfRepository shelfRepository;
+
+    @Autowired
+    private AppUserRepository appUserRepository;
 
     // remove book
     @DeleteMapping("/bookstore/books/{id}")
@@ -76,26 +88,8 @@ public class BookStoreController {
     // ######################################################### book start #########################################################
     // assign category to book
     @PostMapping("/bookstore/create-book")
-    public Book createBookWithCategory(@RequestBody Map<String, Object> bookData) {
-        Book book = new Book();
-        book.setSubject((String) bookData.get("subject"));
-        book.setDescription((String) bookData.get("description"));
-        book.setIsbn((String) bookData.get("isbn"));
-        book.setContent((String) bookData.get("content"));
-        book.setContentType((String) bookData.get("contentType"));
-        book.setPublisher((String) bookData.get("publisher"));
-        book.setCreatedDate(new java.util.Date());
-        book.setPrice((Double) bookData.get("price"));
-
-        Category category = categoryRepository.findByName((String) bookData.get("category"))
-            .orElseThrow(() -> new RuntimeException("Category not found"));
-        book.setCategory(category);
-
-        Author author = authorRepository.findByName((String) bookData.get("author"))
-            .orElseThrow(() -> new RuntimeException("Author not found"));
-        book.setAuthor(author);
-
-        return bookRepository.save(book);
+    public Book createBookWithCategory(@RequestBody BookDTO bookDTO) {
+        return bookStoreService.createBook(bookDTO);
     }
 
     // get all books
@@ -141,4 +135,35 @@ public class BookStoreController {
     }
 
     // ######################################################### author end #########################################################
+
+    // ######################################################### appuser start #########################################################
+    // get all appuser books
+    @GetMapping("/bookstore/appuser-books/{appuserId}")
+    public List<Book> getAllAppUserBooks(@PathVariable Long appuserId) {
+        Optional<AppUser> appUser = appUserRepository.findById(appuserId);
+        if (appUser.isPresent()) {
+            AppUser appUserEntity = appUser.get();
+
+            List<Shelf> shelf = shelfRepository.findByAppUserId(appUserEntity.getId());
+            List<Book> books = shelf.stream().map(Shelf::getBook).collect(Collectors.toList());
+            return books;
+        } else {
+            throw new RuntimeException("AppUser not found");
+        }
+    }
+
+    // add book to appuser shelf
+    @PostMapping("/bookstore/appuser-addbook/{appuserId}/{bookid}")
+    public Shelf addBookToAppUserShelf(@PathVariable Long appuserId, @PathVariable Long bookid) {
+        AppUser appUser = appUserRepository.findById(appuserId).orElseThrow(() -> new RuntimeException("AppUser not found"));
+        Book book = bookRepository.findById(bookid).orElseThrow(() -> new RuntimeException("Book not found"));
+        Shelf shelf = new Shelf();
+        shelf.setAppUser(appUser);
+        shelf.setBook(book);
+        shelf.setLastAccessDate(java.time.LocalDateTime.now());
+        shelf.setNumberOfAccesses(0);
+        return shelfRepository.save(shelf);
+    }
+
+    // ######################################################### appuser end #########################################################
 }

@@ -13,6 +13,7 @@ import lombok.Setter;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.CascadeType;
 import java.util.List;
+import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
@@ -47,8 +48,8 @@ public class AppUser {
     @OneToMany(mappedBy = "appUser", cascade = CascadeType.ALL)
     private List<AppUserRole> roles;
 
-    // One to many relationship with AppUserBook
+    // One to many relationship with shelf (AppUserBook)
     @JsonIgnore
     @OneToMany(mappedBy = "appUser", cascade = CascadeType.ALL)
-    private List<AppUserBook> books;
+    private Set<Shelf> books;
 }

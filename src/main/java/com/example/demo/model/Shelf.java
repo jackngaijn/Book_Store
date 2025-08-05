@@ -11,26 +11,31 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.UniqueConstraint;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+// appuser_book
 @Entity
-@Table(name = "appuser_book")
+@Table(name = "shelf", uniqueConstraints = @UniqueConstraint(columnNames = {"appuser_id", "book_id"}))
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AppUserBook {
+public class Shelf {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    private java.time.LocalDateTime lastAccessDate;
+    private int numberOfAccesses; 
+    
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "appuser_id")
     private AppUser appUser;
-
+    
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "book_id")
     private Book book;
+
 }

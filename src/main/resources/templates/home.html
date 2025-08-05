@@ -21,6 +21,17 @@
                         <a class="nav-link" href="#">Home</a>
                     </li>
                     <li class="nav-item">
+                        <button class="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#createAuthorModal">
+                            Create Author
+                        </button>
+                        <button class="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
+                            Create Category
+                        </button>
+                        <button class="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#createBookModal">
+                            Create Book
+                        </button>
+                    </li>
+                    <li class="nav-item">
                         <button class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#loginModal" id="loginButton">
                             Login
                         </button>
@@ -112,6 +123,125 @@
                             <a href="#" id="registerLink">Register here</a>
                         </small>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Author Modal -->
+    <div class="modal fade" id="createAuthorModal" tabindex="-1" aria-labelledby="createAuthorModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createAuthorModalLabel">Create Author</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createAuthorForm">
+                        <div class="mb-3">
+                            <label for="authorName" class="form-label">Name *</label>
+                            <input type="text" class="form-control" id="authorName" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="authorEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="authorEmail" name="email">
+                        </div>
+                        <div class="mb-3">
+                            <label for="authorCountry" class="form-label">Country</label>
+                            <input type="text" class="form-control" id="authorCountry" name="country">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Create Author</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Category Modal -->
+    <div class="modal fade" id="createCategoryModal" tabindex="-1" aria-labelledby="createCategoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createCategoryModalLabel">Create Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createCategoryForm">
+                        <div class="mb-3">
+                            <label for="categoryName" class="form-label">Name *</label>
+                            <input type="text" class="form-control" id="categoryName" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="categoryDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="categoryDescription" name="description" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Create Category</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Book Modal -->
+    <div class="modal fade" id="createBookModal" tabindex="-1" aria-labelledby="createBookModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createBookModalLabel">Create Book</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createBookForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="bookSubject" class="form-label">Subject *</label>
+                                    <input type="text" class="form-control" id="bookSubject" name="subject" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="bookISBN" class="form-label">ISBN</label>
+                                    <input type="text" class="form-control" id="bookISBN" name="isbn">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="bookContentType" class="form-label">Content Type</label>
+                                    <input type="text" class="form-control" id="bookContentType" name="contentType" placeholder="e.g., PDF, EPUB, Physical Book, Audio Book">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="bookPublisher" class="form-label">Publisher</label>
+                                    <input type="text" class="form-control" id="bookPublisher" name="publisher">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="bookPrice" class="form-label">Price *</label>
+                                    <input type="number" step="0.01" class="form-control" id="bookPrice" name="price" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="bookDescription" class="form-label">Description</label>
+                                    <textarea class="form-control" id="bookDescription" name="description" rows="3"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="bookContent" class="form-label">Content</label>
+                                    <textarea class="form-control" id="bookContent" name="content" rows="3"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="bookAuthor" class="form-label">Author *</label>
+                                    <select class="form-control" id="bookAuthor" name="author" required>
+                                        <option value="">Select Author</option>
+                                        <!-- Options will be loaded dynamically -->
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="bookCategory" class="form-label">Category *</label>
+                                    <select class="form-control" id="bookCategory" name="category" required>
+                                        <option value="">Select Category</option>
+                                        <!-- Options will be loaded dynamically -->
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Create Book</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -268,6 +398,153 @@
             .catch(error => {
                 console.error('Logout error:', error);
                 alert('Logout failed');
+            });
+        });
+
+        // Load authors and categories for book creation dropdown
+        function loadAuthorsAndCategories() {
+            // Load authors
+            fetch('/bookstore/authors')
+                .then(response => response.json())
+                .then(authors => {
+                    const authorSelect = document.getElementById('bookAuthor');
+                    authorSelect.innerHTML = '<option value="">Select Author</option>';
+                    authors.forEach(author => {
+                        const option = document.createElement('option');
+                        option.value = author.name;
+                        option.textContent = author.name;
+                        authorSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error loading authors:', error));
+
+            // Load categories
+            fetch('/bookstore/categories')
+                .then(response => response.json())
+                .then(categories => {
+                    const categorySelect = document.getElementById('bookCategory');
+                    categorySelect.innerHTML = '<option value="">Select Category</option>';
+                    categories.forEach(category => {
+                        const option = document.createElement('option');
+                        option.value = category.name;
+                        option.textContent = category.name;
+                        categorySelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error loading categories:', error));
+        }
+
+        // Load dropdowns when the book modal is opened
+        document.getElementById('createBookModal').addEventListener('show.bs.modal', function() {
+            loadAuthorsAndCategories();
+        });
+
+        // Handle Create Author Form Submission
+        document.getElementById('createAuthorForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            
+            const authorData = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                country: formData.get('country')
+            };
+
+            fetch('/bookstore/create-author', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(authorData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Author created:', data);
+                alert('Author created successfully!');
+                bootstrap.Modal.getInstance(document.getElementById('createAuthorModal')).hide();
+                this.reset(); // Clear form
+                // Reload authors dropdown if book modal is open
+                if (document.getElementById('createBookModal').classList.contains('show')) {
+                    loadAuthorsAndCategories();
+                }
+            })
+            .catch(error => {
+                console.error('Error creating author:', error);
+                alert('Error creating author. Please try again.');
+            });
+        });
+
+        // Handle Create Category Form Submission
+        document.getElementById('createCategoryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            
+            const categoryData = {
+                name: formData.get('name'),
+                description: formData.get('description')
+            };
+
+            fetch('/bookstore/create-category', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(categoryData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Category created:', data);
+                alert('Category created successfully!');
+                bootstrap.Modal.getInstance(document.getElementById('createCategoryModal')).hide();
+                this.reset(); // Clear form
+                // Reload categories dropdown if book modal is open
+                if (document.getElementById('createBookModal').classList.contains('show')) {
+                    loadAuthorsAndCategories();
+                }
+            })
+            .catch(error => {
+                console.error('Error creating category:', error);
+                alert('Error creating category. Please try again.');
+            });
+        });
+
+        // Handle Create Book Form Submission
+        document.getElementById('createBookForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            
+            const bookData = {
+                subject: formData.get('subject'),
+                description: formData.get('description'),
+                isbn: formData.get('isbn'),
+                content: formData.get('content'),
+                contentType: formData.get('contentType'),
+                publisher: formData.get('publisher'),
+                createdDate: new Date(),
+                price: parseFloat(formData.get('price')),
+                author: formData.get('author'),
+                category: formData.get('category')
+            };
+
+            fetch('/bookstore/create-book', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(bookData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                alert('Book created successfully!');
+                bootstrap.Modal.getInstance(document.getElementById('createBookModal')).hide();
+                this.reset(); // Clear form
+                // Reload the books table
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error creating book:', error);
+                alert('Error creating book. Please try again.');
             });
         });
     </script>

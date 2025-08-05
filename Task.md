@@ -19,6 +19,9 @@
 - [ ] **DELETE /bookstore/authors/{id}** - Delete author
 - [x] test the relationship between author category book.
 - [ ] create home page
+- [x] **GET /bookstore/appuser-books** - list all appuser's books. create shelf model, user many to many book
+- [x] **POST /bookstore/appuser-addbook** - appuser buy book
+- [ ] User 
 
 # Debug 
 login in home 
