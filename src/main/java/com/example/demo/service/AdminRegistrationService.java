@@ -11,6 +11,7 @@ import com.example.demo.repository.AdminRepository;
 import com.example.demo.repository.RoleRepository;
 import com.example.demo.repository.AdminRoleRepository;
 import com.example.demo.dto.ApiResponse;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -29,23 +30,25 @@ public class AdminRegistrationService {
     private PasswordEncoder passwordEncoder;
     
     public ApiResponse registerAdmin(Admin admin) {
-        String username = admin.getUsername();
-        String password = admin.getPassword();
-        String email = admin.getEmail();
-        
-        ApiResponse response = new ApiResponse();
-        // Check if username already exists, if so return error
-        if (adminRepository.findByUsername(username).isPresent()) {
-            response.setMessage("Username already exists!");
-            response.setData(null);
-            return response;
+        // Check if admin name already exists, if so return error
+        Optional<Admin> existingAdmin = adminRepository.findByUsername("ADMIN_" + admin.getUsername());
+        if (existingAdmin.isPresent()) {
+            return new ApiResponse("Admin name already exists!", null);
         }
+
         // Check if role exists, if not create it
         if (roleRepository.findByName("ROLE_ADMIN").isEmpty()) {
             Role adminRole = new Role();
             adminRole.setName("ROLE_ADMIN");
             roleRepository.save(adminRole);
         }
+
+        String username = admin.getUsername();
+        String password = admin.getPassword();
+        String email = admin.getEmail();
+        
+        ApiResponse response = new ApiResponse();
+
 
         // Create new admin
         Admin newAdmin = new Admin();

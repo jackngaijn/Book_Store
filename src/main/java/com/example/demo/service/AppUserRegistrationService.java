@@ -11,6 +11,7 @@ import com.example.demo.dto.ApiResponse;
 import com.example.demo.model.AppUser;
 import com.example.demo.model.Role;
 import com.example.demo.model.AppUserRole;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -28,6 +29,20 @@ public class AppUserRegistrationService {
     private PasswordEncoder passwordEncoder;
     
     public ApiResponse registerAppUser(AppUser appUser) {
+        // Check if username already exists, if so return error
+        Optional<AppUser> existingUser = appUserRepository.findByUsername("USER_" + appUser.getUsername());
+        if (existingUser.isPresent()) {
+            return new ApiResponse("Username already exists!", null);
+        }
+        
+        // Check if role exists, if not create it
+        if (roleRepository.findByName("ROLE_USER").isEmpty()) {
+            Role userRole = new Role();
+            userRole.setName("ROLE_USER");
+            roleRepository.save(userRole);
+        }
+        
+        
         String username = appUser.getUsername();
         String password = appUser.getPassword();
         String name = appUser.getName();
@@ -39,21 +54,6 @@ public class AppUserRegistrationService {
         java.time.LocalDateTime updatedDate = java.time.LocalDateTime.now();
         
         ApiResponse response = new ApiResponse();
-
-        // Check if username already exists, if so return error
-        if (appUserRepository.findByUsername(username).isPresent()) {
-            response.setMessage("Username already exists!");
-            response.setData(null);
-            return response;
-        }
-        
-        // Check if role exists, if not create it
-        if (roleRepository.findByName("ROLE_USER").isEmpty()) {
-            Role userRole = new Role();
-            userRole.setName("ROLE_USER");
-            roleRepository.save(userRole);
-        }
-        
         // Create new app user
         AppUser newAppUser = new AppUser();
         newAppUser.setUsername("USER_" + username);

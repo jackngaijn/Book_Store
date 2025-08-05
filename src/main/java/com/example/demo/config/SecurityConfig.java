@@ -34,6 +34,10 @@ public class SecurityConfig {
                 .requestMatchers("/appuser/login", "/admin/login", "/logout", "/currentuser").permitAll()
                 .requestMatchers("/bookstore/**").permitAll()
                 .requestMatchers("/debug/auth").permitAll() // Add debug endpoint
+                .requestMatchers("/check-admin").permitAll() // Add admin check endpoint
+                .requestMatchers("/check-user").permitAll() // Add user check endpoint
+                .requestMatchers("/current-user-id").permitAll() // Add current user ID endpoint
+                .requestMatchers("/appusers").hasRole("ADMIN") // Admin only endpoint
                 .requestMatchers("/admin/testrole").hasAnyRole("ADMIN", "USER")
                 // .requestMatchers("/user/**").hasRole("USER")
                 // .requestMatchers("/admin/**").hasRole("ADMIN")
