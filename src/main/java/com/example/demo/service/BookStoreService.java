@@ -9,10 +9,12 @@ import org.springframework.stereotype.Service;
 import com.example.demo.dto.ApiResponse;
 import com.example.demo.dto.BookDTO;
 import com.example.demo.model.Book;
+import com.example.demo.model.Author;
 import com.example.demo.repository.BookRepository;
 import com.example.demo.repository.CategoryRepository;
 import com.example.demo.repository.AuthorRepository;
 import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.dto.AuthorDTO;
 
 @Service
 public class BookStoreService {
@@ -104,5 +106,68 @@ public class BookStoreService {
         }
         throw new ResourceNotFoundException("Book not found");
     }
+    // ######################################################### book end #########################################################
+
+    // ######################################################### author start #########################################################
+    // Create author
+    public ApiResponse createAuthor(AuthorDTO authorDTO) {
+        // check if author exists, if not throw exception
+        Optional<Author> authorOptional = authorRepository.findByName(authorDTO.getName());
+        if (authorOptional.isPresent()) {
+            throw new ResourceNotFoundException("Author already exists");
+        }
+        Author author = new Author();
+        author.setName(authorDTO.getName());
+        author.setEmail(authorDTO.getEmail());
+        author.setCountry(authorDTO.getCountry());
+        authorRepository.save(author);
+        return new ApiResponse(
+            "Author created successfully", 
+            author
+        );
+    }
+
+    // Read all authors
+    public ApiResponse getAllAuthors() {
+        List<AuthorDTO> authors = authorRepository.findAll()
+            .stream()
+            .map(AuthorDTO::toAuthorDTO)
+            .collect(Collectors.toList());
+        return new ApiResponse(
+            "Authors fetched successfully", 
+            authors
+        );
+    }
+
+    // Read author by id
+    public ApiResponse getAuthorById(Long id) {
+        Author author = authorRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Author not found"));
+        return new ApiResponse("Author fetched successfully", author);
+    }
+
+    // Update author
+    public ApiResponse updateAuthor(Long id, AuthorDTO authorDTO) {
+        Author author = authorRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Author not found"));
+        author.setName(authorDTO.getName());
+        author.setEmail(authorDTO.getEmail());
+        author.setCountry(authorDTO.getCountry());
+        authorRepository.save(author);
+        return new ApiResponse("Author updated successfully", author);
+    }
+
+    // Remove author
+    public ApiResponse deleteAuthor(Long id) {
+        // check if author exists, if not throw exception   
+        Optional<Author> author = authorRepository.findById(id);
+        if (author.isPresent()) {
+            authorRepository.deleteById(id);
+            return new ApiResponse("Author deleted successfully", null);
+        }
+        throw new ResourceNotFoundException("Author not found");
+    }
+    // ######################################################### author end #########################################################
+
 }
         

@@ -19,6 +19,7 @@ import com.example.demo.model.Author;
 import com.example.demo.service.BookStoreService;
 import com.example.demo.dto.ApiResponse;
 import com.example.demo.dto.BookDTO;
+import com.example.demo.dto.AuthorDTO;
 import com.example.demo.model.Shelf;
 import com.example.demo.repository.ShelfRepository;
 import com.example.demo.model.AppUser;
@@ -109,28 +110,45 @@ public class BookStoreController {
         ApiResponse response = bookStoreService.deleteBook(id);
         return ResponseEntity.ok(response);
     }
-
-
     // ######################################################### book end #########################################################
 
     // ######################################################### author start #########################################################
-    // create author
+    // Create author
     @PostMapping("/bookstore/create-author")
-    public Author createAuthor(@RequestBody Author author) {
-        return authorRepository.save(author);
+    public ResponseEntity<ApiResponse> createAuthor(@RequestBody AuthorDTO AuthorDTO) {
+        ApiResponse response = bookStoreService.createAuthor(AuthorDTO);
+        return ResponseEntity.ok(response);
     }
 
-    // get all authors
+    // Read all authors
     @GetMapping("/bookstore/authors")
-    public List<Author> getAllAuthors() {
-        return authorRepository.findAll();
+    public ResponseEntity<ApiResponse> getAllAuthors() {
+        ApiResponse response = bookStoreService.getAllAuthors();
+        return ResponseEntity.ok(response);
     }
 
-    // get author by id
+    // Read author by id
     @GetMapping("/bookstore/authors/{id}")
-    public Author getAuthorById(@PathVariable Long id) {
-        return authorRepository.findById(id).orElseThrow(() -> new RuntimeException("Author not found"));
+    public ResponseEntity<ApiResponse> getAuthorById(@PathVariable Long id) {
+        ApiResponse response = bookStoreService.getAuthorById(id);
+        return ResponseEntity.ok(response);
     }
+
+    // Update author
+    @PutMapping("/bookstore/authors/{id}")
+    public ResponseEntity<ApiResponse> updateAuthor(@PathVariable Long id, @RequestBody AuthorDTO authorDTO) {
+        ApiResponse response = bookStoreService.updateAuthor(id, authorDTO);
+        return ResponseEntity.ok(response);
+    }
+
+    // Remove author
+    @DeleteMapping("/bookstore/authors/{id}")
+    public ResponseEntity<ApiResponse> deleteAuthor(@PathVariable Long id) {
+        ApiResponse response = bookStoreService.deleteAuthor(id);
+        return ResponseEntity.ok(response);
+    }
+
+    // ######################################################### author end #########################################################
 
     // author get all books
     @GetMapping("/bookstore/authors/{authorName}/books")
