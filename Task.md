@@ -21,9 +21,9 @@
 - [ ] create home page
 - [x] **GET /bookstore/appuser-books** - list all appuser's books. create shelf model, user many to many book
 - [x] **POST /bookstore/appuser-addbook** - appuser buy book
-- [ ] User 
+- [x] **GET /admin/approve/{appuser_id}** - appove appuser account
 
-# Debug 
+# Debug
 login in home 
     -> /currentuser (check if username is not anonymousUser)
     -> /debug/auth (show Authentication object details)

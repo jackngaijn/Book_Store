@@ -21,13 +21,13 @@ public class RegistrationController {
 
     @PostMapping("/admin/register")
     public ResponseEntity<ApiResponse> createAdmin(@RequestBody Admin admin) {
-            ApiResponse response = adminRegistrationService.registerAdmin(admin);
-            return ResponseEntity.ok(response);
+        ApiResponse response = adminRegistrationService.registerAdmin(admin);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/appuser/register")
     public ResponseEntity<ApiResponse> createAppUser(@RequestBody AppUser appUser) {
-            ApiResponse response = appUserRegistrationService.registerAppUser(appUser);
-            return ResponseEntity.ok(response);
+        ApiResponse response = appUserRegistrationService.registerAppUser(appUser);
+        return ResponseEntity.ok(response);
     }
 }

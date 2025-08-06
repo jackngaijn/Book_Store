@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,10 +14,10 @@ import com.example.demo.model.Book;
 import java.util.List;
 import com.example.demo.model.Category;
 import com.example.demo.repository.CategoryRepository;
-import java.util.Map;
 import com.example.demo.repository.AuthorRepository;
 import com.example.demo.model.Author;
 import com.example.demo.service.BookStoreService;
+import com.example.demo.dto.ApiResponse;
 import com.example.demo.dto.BookDTO;
 import com.example.demo.model.Shelf;
 import com.example.demo.repository.ShelfRepository;
@@ -44,18 +45,6 @@ public class BookStoreController {
 
     @Autowired
     private AppUserRepository appUserRepository;
-
-    // remove book
-    @DeleteMapping("/bookstore/books/{id}")
-    public void deleteBook(@PathVariable Long id) {
-        bookRepository.deleteById(id);
-    }
-
-    // update book
-    @PutMapping("/bookstore/books/{id}")
-    public Book updateBook(@PathVariable Long id, @RequestBody Book book) {
-        return bookRepository.save(book);
-    }
 
     // ######################################################### category start #########################################################
     // create category
@@ -86,25 +75,41 @@ public class BookStoreController {
     // ######################################################### category end #########################################################
 
     // ######################################################### book start #########################################################
-    // assign category to book
+    // Create Book
     @PostMapping("/bookstore/create-book")
-    public Book createBookWithCategory(@RequestBody BookDTO bookDTO) {
-        return bookStoreService.createBook(bookDTO);
+    public ResponseEntity<ApiResponse> createBookWithCategory(@RequestBody BookDTO bookDTO) {
+        ApiResponse response = bookStoreService.createBook(bookDTO);
+        return ResponseEntity.ok(response);
     }
 
-    // get all books
+    // Read all books
     @GetMapping("/bookstore/books")
-    public List<BookDTO> getAllBooks() {
-        return bookStoreService.getAllBooks();
+    public ResponseEntity<ApiResponse> getAllBooks() {
+        ApiResponse response = bookStoreService.getAllBooks();
+        return ResponseEntity.ok(response);
     }
 
-    // get book by id
+    // Read book by id
     @GetMapping("/bookstore/books/{id}")
-    public Book getBookById(@PathVariable Long id) {
-        Book book = bookRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Book not found"));
-        return book;
+    public ResponseEntity<ApiResponse> getBookById(@PathVariable Long id) {
+        ApiResponse response = bookStoreService.getBookById(id);
+        return ResponseEntity.ok(response);
     }
+
+    // Update Book
+    @PutMapping("/bookstore/books/{id}")
+    public ResponseEntity<ApiResponse> updateBook(@PathVariable Long id, @RequestBody BookDTO bookDTO) {
+        ApiResponse response = bookStoreService.updateBook(id, bookDTO);
+        return ResponseEntity.ok(response);
+    }
+
+    // Remove Book
+    @DeleteMapping("/bookstore/books/{id}")
+    public ResponseEntity<ApiResponse> deleteBook(@PathVariable Long id) {
+        ApiResponse response = bookStoreService.deleteBook(id);
+        return ResponseEntity.ok(response);
+    }
+
 
     // ######################################################### book end #########################################################
 

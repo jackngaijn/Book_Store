@@ -47,9 +47,8 @@ public class AdminRegistrationService {
         String password = admin.getPassword();
         String email = admin.getEmail();
         
-        ApiResponse response = new ApiResponse();
-
-
+        
+        
         // Create new admin
         Admin newAdmin = new Admin();
         newAdmin.setUsername("ADMIN_" + username);
@@ -57,14 +56,15 @@ public class AdminRegistrationService {
         newAdmin.setEmail(email);
         newAdmin.setEnabled(true);
         adminRepository.save(newAdmin);
-
+        
         // Create new admin role
         AdminRole adminRole = new AdminRole();
         adminRole.setAdmin(newAdmin);
         adminRole.setRole(roleRepository.findByName("ROLE_ADMIN").get());
         adminRoleRepository.save(adminRole);
-
+        
         // Return success message
+        ApiResponse response = new ApiResponse();
         response.setMessage("Admin " + username + " created successfully");
         response.setData(newAdmin);
         return response;
