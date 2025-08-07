@@ -26,7 +26,7 @@ public class Shelf {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private java.time.LocalDateTime lastAccessDate;
-    private int numberOfAccesses; 
+    private int numberOfAccesses;
     
     @ManyToOne
     @JsonIgnore

@@ -1,43 +1,30 @@
 package com.example.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
-import com.example.demo.repository.BookRepository;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.http.ResponseEntity;
 import com.example.demo.model.Book;
-import java.util.List;
-import com.example.demo.model.Category;
-import com.example.demo.repository.CategoryRepository;
-import com.example.demo.repository.AuthorRepository;
-import com.example.demo.model.Author;
-import com.example.demo.service.BookStoreService;
 import com.example.demo.dto.ApiResponse;
-import com.example.demo.dto.BookDTO;
-import com.example.demo.dto.AuthorDTO;
+import com.example.demo.model.AppUser;
 import com.example.demo.model.Shelf;
 import com.example.demo.repository.ShelfRepository;
-import com.example.demo.model.AppUser;
 import com.example.demo.repository.AppUserRepository;
+import com.example.demo.dto.BookDTO;
+import com.example.demo.dto.AuthorDTO;
+import com.example.demo.dto.CategoryDTO;
+import com.example.demo.service.BookStoreService;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.List;
 
 @RestController
 public class BookStoreController {
-    @Autowired
-    private BookRepository bookRepository;
-
-    @Autowired
-    private CategoryRepository categoryRepository;
-
-    @Autowired
-    private AuthorRepository authorRepository;
-
     @Autowired
     private BookStoreService bookStoreService;
 
@@ -46,34 +33,6 @@ public class BookStoreController {
 
     @Autowired
     private AppUserRepository appUserRepository;
-
-    // ######################################################### category start #########################################################
-    // create category
-    @PostMapping("/bookstore/create-category")
-    public Category createCategory(@RequestBody Category category) {
-        return categoryRepository.save(category);
-    }
-
-    // get all categories
-    @GetMapping("/bookstore/categories")
-    public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
-    }
-
-    // get category by id
-    @GetMapping("/bookstore/categories/{id}")
-    public Category getCategoryById(@PathVariable Long id) {
-        return categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Category not found"));
-    }
-
-    // category get all books
-    @GetMapping("/bookstore/categories/{categoryName}/books")
-    public List<Book> getBooksByCategoryId(@PathVariable String categoryName) {
-        Category category = categoryRepository.findByName(categoryName).orElseThrow(() -> new RuntimeException("Category not found"));
-        return category.getBooks();
-    }
-
-    // ######################################################### category end #########################################################
 
     // ######################################################### book start #########################################################
     // Create Book
@@ -148,13 +107,11 @@ public class BookStoreController {
         return ResponseEntity.ok(response);
     }
 
-    // ######################################################### author end #########################################################
-
     // author get all books
     @GetMapping("/bookstore/authors/{authorName}/books")
-    public List<Book> getBooksByAuthorName(@PathVariable String authorName) {
-        Author author = authorRepository.findByName(authorName).orElseThrow(() -> new RuntimeException("Author not found"));
-        return author.getBooks();
+    public ResponseEntity<ApiResponse> getAllBooksByAuthorName(@PathVariable String authorName) {
+        ApiResponse response = bookStoreService.getAllBooksByAuthorName(authorName);
+        return ResponseEntity.ok(response);
     }
 
     // ######################################################### author end #########################################################
@@ -177,16 +134,53 @@ public class BookStoreController {
 
     // add book to appuser shelf
     @PostMapping("/bookstore/appuser-addbook/{appuserId}/{bookid}")
-    public Shelf addBookToAppUserShelf(@PathVariable Long appuserId, @PathVariable Long bookid) {
-        AppUser appUser = appUserRepository.findById(appuserId).orElseThrow(() -> new RuntimeException("AppUser not found"));
-        Book book = bookRepository.findById(bookid).orElseThrow(() -> new RuntimeException("Book not found"));
-        Shelf shelf = new Shelf();
-        shelf.setAppUser(appUser);
-        shelf.setBook(book);
-        shelf.setLastAccessDate(java.time.LocalDateTime.now());
-        shelf.setNumberOfAccesses(0);
-        return shelfRepository.save(shelf);
+    public ResponseEntity<ApiResponse> addBookToAppUserShelf(@PathVariable Long appuserId, @PathVariable Long bookid) {
+        ApiResponse response = bookStoreService.addBookToAppUserShelf(appuserId, bookid);
+        return ResponseEntity.ok(response);
+    }
+    // ######################################################### appuser end #########################################################
+
+    // ######################################################### category start #########################################################
+    // create category
+    @PostMapping("/bookstore/create-category")
+    public ResponseEntity<ApiResponse> createCategory(@RequestBody CategoryDTO categoryDTO) {
+        ApiResponse response = bookStoreService.createCategory(categoryDTO);
+        return ResponseEntity.ok(response);
     }
 
-    // ######################################################### appuser end #########################################################
+    // get all categories
+    @GetMapping("/bookstore/categories")
+    public ResponseEntity<ApiResponse> getAllCategories() {
+        ApiResponse response = bookStoreService.getAllCategories();
+        return ResponseEntity.ok(response);
+    }
+
+    // get category by id
+    @GetMapping("/bookstore/categories/{id}")
+    public ResponseEntity<ApiResponse> getCategoryById(@PathVariable Long id) {
+        ApiResponse response = bookStoreService.getCategoryById(id);
+        return ResponseEntity.ok(response);
+    }
+
+    // update category
+    @PutMapping("/bookstore/categories/{id}")
+    public ResponseEntity<ApiResponse> updateCategory(@PathVariable Long id, @RequestBody CategoryDTO categoryDTO) {
+        ApiResponse response = bookStoreService.updateCategory(id, categoryDTO);
+        return ResponseEntity.ok(response);
+    }
+
+    // delete category
+    @DeleteMapping("/bookstore/categories/{id}")
+    public ResponseEntity<ApiResponse> deleteCategory(@PathVariable Long id) {
+        ApiResponse response = bookStoreService.deleteCategory(id);
+        return ResponseEntity.ok(response);
+    }
+
+    // category get all books
+    @GetMapping("/bookstore/categories/{categoryName}/books")
+    public ResponseEntity<ApiResponse> getAllBooksByCategoryName(@PathVariable String categoryName) {
+        ApiResponse response = bookStoreService.getAllBooksByCategoryName(categoryName);
+        return ResponseEntity.ok(response);
+    }
+    // ######################################################### category end #########################################################
 }

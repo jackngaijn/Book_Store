@@ -10,11 +10,18 @@ import com.example.demo.dto.ApiResponse;
 import com.example.demo.dto.BookDTO;
 import com.example.demo.model.Book;
 import com.example.demo.model.Author;
+import com.example.demo.model.Category;
 import com.example.demo.repository.BookRepository;
 import com.example.demo.repository.CategoryRepository;
 import com.example.demo.repository.AuthorRepository;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.dto.AuthorDTO;
+import com.example.demo.dto.CategoryDTO;
+import com.example.demo.dto.ShelfDTO;
+import com.example.demo.model.Shelf;
+import com.example.demo.model.AppUser;
+import com.example.demo.repository.AppUserRepository;
+import com.example.demo.repository.ShelfRepository;
 
 @Service
 public class BookStoreService {
@@ -28,10 +35,23 @@ public class BookStoreService {
     @Autowired
     private AuthorRepository authorRepository;
 
-    
+    @Autowired
+    private ShelfRepository shelfRepository;
+
+    @Autowired
+    private AppUserRepository appUserRepository;
+
     // ######################################################### book start #########################################################
     // Create book
     public ApiResponse createBook(BookDTO bookDTO) {
+        // check if book exists, if not throw exception
+        Optional<Book> bookOptional = bookRepository.findBySubject(bookDTO.getSubject());
+        if (bookOptional.isPresent()) {
+            return new ApiResponse(
+                "Book already exists", 
+                null
+            );
+        }
         Book book = new Book();
         book.setSubject(bookDTO.getSubject());
         book.setDescription(bookDTO.getDescription());
@@ -167,7 +187,112 @@ public class BookStoreService {
         }
         throw new ResourceNotFoundException("Author not found");
     }
+
+    // Author get all books
+    public ApiResponse getAllBooksByAuthorName(String authorName) {
+        Author author = authorRepository.findByName(authorName)
+            .orElseThrow(() -> new ResourceNotFoundException("Author not found"));
+        List<BookDTO> books = author.getBooks()
+            .stream()
+            .map(BookDTO::toBookDTO)
+            .collect(Collectors.toList());
+        return new ApiResponse("Books fetched successfully", books);
+    }
     // ######################################################### author end #########################################################
 
+    // ######################################################### Category start #########################################################
+    // Create category
+    public ApiResponse createCategory(CategoryDTO categoryDTO) {
+        // check if category exists, if not throw exception
+        Optional<Category> categoryOptional = categoryRepository.findByName(categoryDTO.getName());
+        if (categoryOptional.isPresent()) {
+            return new ApiResponse("Category already exists", null);
+        }
+        Category category = new Category();
+        category.setName(categoryDTO.getName());
+        category.setDescription(categoryDTO.getDescription());
+        categoryRepository.save(category);
+        return new ApiResponse("Category created successfully", category);
+    }   
+
+    // Read all categories
+    public ApiResponse getAllCategories() {
+        List<CategoryDTO> categories = categoryRepository.findAll()
+            .stream()
+            .map(CategoryDTO::toCategoryDTO)
+            .collect(Collectors.toList());
+        return new ApiResponse("Categories fetched successfully", categories);
+    }
+
+    // Read category by id
+    public ApiResponse getCategoryById(Long id) {
+        Category category = categoryRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+        return new ApiResponse("Category fetched successfully", category);
+    }
+
+    // Update category
+    public ApiResponse updateCategory(Long id, CategoryDTO categoryDTO) {
+        Category category = categoryRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+        category.setName(categoryDTO.getName());
+        category.setDescription(categoryDTO.getDescription());
+        categoryRepository.save(category);
+        return new ApiResponse("Category updated successfully", category);
+    }
+
+    // Remove category
+    public ApiResponse deleteCategory(Long id) {
+        // check if category exists, if not throw exception 
+        Optional<Category> category = categoryRepository.findById(id);
+        if (category.isPresent()) {
+            categoryRepository.deleteById(id);
+            return new ApiResponse(
+                "Category deleted successfully", 
+                null
+            );
+        }
+        throw new ResourceNotFoundException("Category not found");
+    }
+
+    //Get all books by category name
+    public ApiResponse getAllBooksByCategoryName(String categoryName) {
+        Category category = categoryRepository.findByName(categoryName)
+            .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+        List<BookDTO> books = category.getBooks()
+            .stream()
+            .map(BookDTO::toBookDTO)
+            .collect(Collectors.toList());
+        return new ApiResponse("Books fetched successfully", books);
+    }
+    // ######################################################### Category end #########################################################
+
+    // ######################################################### shelf start #########################################################
+    // Add book to appuser's shelf
+    public ApiResponse addBookToAppUserShelf(Long appuserId, Long bookid) {
+        AppUser appUser = appUserRepository.findById(appuserId)
+            .orElseThrow(() -> new ResourceNotFoundException("AppUser not found"));
+        Book book = bookRepository.findById(bookid)
+            .orElseThrow(() -> new ResourceNotFoundException("Book not found"));
+        Shelf shelf = new Shelf();
+        shelf.setBook(book);
+        shelf.setAppUser(appUser);
+        shelf.setLastAccessDate(null);
+        shelf.setNumberOfAccesses(0);
+        shelfRepository.save(shelf);
+        return new ApiResponse("Book added to shelf successfully", shelf);
+    }
+
+    // Read all books in appuser's shelf
+    public ApiResponse getAllBooksInAppUserShelf(Long appUserId) {
+        Optional<AppUser> appUser = appUserRepository.findById(appUserId);
+        if (appUser.isPresent()) {
+            AppUser appUserEntity = appUser.get();
+            List<Shelf> shelf = shelfRepository.findByAppUserId(appUserEntity.getId());
+            List<Book> books = shelf.stream().map(Shelf::getBook).collect(Collectors.toList());
+            return new ApiResponse("Books fetched successfully", books);
+        }
+        throw new ResourceNotFoundException("AppUser not found");
+    }
+    // ######################################################### shelf end #########################################################
 }
-        

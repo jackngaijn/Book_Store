@@ -501,10 +501,11 @@
         function loadBooks() {
             fetch('/bookstore/books')
                 .then(response => response.json())
-                .then(books => {
+                .then(data => {
+                    console.log(data.data);
                     const tbody = document.querySelector('#booksTable tbody');
                     tbody.innerHTML = ''; // Clear existing rows
-                    books.forEach(book => {
+                    data.data.forEach(book => {
                         console.log('Book:', book);
                         const row = document.createElement('tr');
                         let actionColumn = '';
