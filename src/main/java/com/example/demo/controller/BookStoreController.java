@@ -9,35 +9,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.http.ResponseEntity;
-import com.example.demo.model.Book;
+import jakarta.validation.Valid;
 import com.example.demo.dto.ApiResponse;
-import com.example.demo.model.AppUser;
-import com.example.demo.model.Shelf;
-import com.example.demo.repository.ShelfRepository;
-import com.example.demo.repository.AppUserRepository;
 import com.example.demo.dto.BookDTO;
 import com.example.demo.dto.AuthorDTO;
 import com.example.demo.dto.CategoryDTO;
 import com.example.demo.service.BookStoreService;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.List;
 
 @RestController
 public class BookStoreController {
     @Autowired
     private BookStoreService bookStoreService;
 
-    @Autowired
-    private ShelfRepository shelfRepository;
-
-    @Autowired
-    private AppUserRepository appUserRepository;
+    // Repositories should not be accessed directly from controllers. Use services instead.
 
     // ######################################################### book start #########################################################
     // Create Book
     @PostMapping("/bookstore/create-book")
-    public ResponseEntity<ApiResponse> createBookWithCategory(@RequestBody BookDTO bookDTO) {
+    public ResponseEntity<ApiResponse> createBookWithCategory(@Valid @RequestBody BookDTO bookDTO) {
         ApiResponse response = bookStoreService.createBook(bookDTO);
         return ResponseEntity.ok(response);
     }
@@ -58,7 +47,7 @@ public class BookStoreController {
 
     // Update Book
     @PutMapping("/bookstore/books/{id}")
-    public ResponseEntity<ApiResponse> updateBook(@PathVariable Long id, @RequestBody BookDTO bookDTO) {
+    public ResponseEntity<ApiResponse> updateBook(@PathVariable Long id, @Valid @RequestBody BookDTO bookDTO) {
         ApiResponse response = bookStoreService.updateBook(id, bookDTO);
         return ResponseEntity.ok(response);
     }
@@ -74,7 +63,7 @@ public class BookStoreController {
     // ######################################################### author start #########################################################
     // Create author
     @PostMapping("/bookstore/create-author")
-    public ResponseEntity<ApiResponse> createAuthor(@RequestBody AuthorDTO AuthorDTO) {
+    public ResponseEntity<ApiResponse> createAuthor(@Valid @RequestBody AuthorDTO AuthorDTO) {
         ApiResponse response = bookStoreService.createAuthor(AuthorDTO);
         return ResponseEntity.ok(response);
     }
@@ -95,7 +84,7 @@ public class BookStoreController {
 
     // Update author
     @PutMapping("/bookstore/authors/{id}")
-    public ResponseEntity<ApiResponse> updateAuthor(@PathVariable Long id, @RequestBody AuthorDTO authorDTO) {
+    public ResponseEntity<ApiResponse> updateAuthor(@PathVariable Long id, @Valid @RequestBody AuthorDTO authorDTO) {
         ApiResponse response = bookStoreService.updateAuthor(id, authorDTO);
         return ResponseEntity.ok(response);
     }
@@ -119,17 +108,9 @@ public class BookStoreController {
     // ######################################################### appuser start #########################################################
     // get all appuser books
     @GetMapping("/bookstore/appuser-books/{appuserId}")
-    public List<Book> getAllAppUserBooks(@PathVariable Long appuserId) {
-        Optional<AppUser> appUser = appUserRepository.findById(appuserId);
-        if (appUser.isPresent()) {
-            AppUser appUserEntity = appUser.get();
-
-            List<Shelf> shelf = shelfRepository.findByAppUserId(appUserEntity.getId());
-            List<Book> books = shelf.stream().map(Shelf::getBook).collect(Collectors.toList());
-            return books;
-        } else {
-            throw new RuntimeException("AppUser not found");
-        }
+    public ResponseEntity<ApiResponse> getAllAppUserBooks(@PathVariable Long appuserId) {
+        ApiResponse response = bookStoreService.getAllBooksInAppUserShelf(appuserId);
+        return ResponseEntity.ok(response);
     }
 
     // add book to appuser shelf
@@ -143,7 +124,7 @@ public class BookStoreController {
     // ######################################################### category start #########################################################
     // create category
     @PostMapping("/bookstore/create-category")
-    public ResponseEntity<ApiResponse> createCategory(@RequestBody CategoryDTO categoryDTO) {
+    public ResponseEntity<ApiResponse> createCategory(@Valid @RequestBody CategoryDTO categoryDTO) {
         ApiResponse response = bookStoreService.createCategory(categoryDTO);
         return ResponseEntity.ok(response);
     }
@@ -164,7 +145,7 @@ public class BookStoreController {
 
     // update category
     @PutMapping("/bookstore/categories/{id}")
-    public ResponseEntity<ApiResponse> updateCategory(@PathVariable Long id, @RequestBody CategoryDTO categoryDTO) {
+    public ResponseEntity<ApiResponse> updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryDTO categoryDTO) {
         ApiResponse response = bookStoreService.updateCategory(id, categoryDTO);
         return ResponseEntity.ok(response);
     }

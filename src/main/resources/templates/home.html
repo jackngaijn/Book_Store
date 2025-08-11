@@ -405,58 +405,65 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        // -------------------- Small fetch helpers for consistent API handling --------------------
+        async function getJson(url, options = {}) {
+            const response = await fetch(url, options);
+            const text = await response.text();
+            let json = null;
+            try { json = text ? JSON.parse(text) : null; } catch (_) { json = null; }
+            if (!response.ok) {
+                const msg = json?.message || json?.error || `Request failed (${response.status})`;
+                throw new Error(msg);
+            }
+            return json;
+        }
+
+        function unwrapApiResponse(payload) {
+            // Many endpoints return { message, data }. Some return raw data (boolean/list)
+            return (payload && typeof payload === 'object' && 'data' in payload) ? payload.data : payload;
+        }
+
+        function safe(val, fallback = '') { return (val === null || val === undefined) ? fallback : val; }
+        function fmtDate(val) { try { return val ? new Date(val).toLocaleString() : ''; } catch (_) { return safe(val, ''); } }
+
         let currentUserId = null;
         let isUserRole = false;
 
         // Check if user is admin and show/hide AppUser List button
-        function checkAdminRole() {
-            fetch('/check-admin')
-                .then(response => response.json())
-                .then(isAdmin => {
-                    console.log('Is Admin:', isAdmin);
-                    if (isAdmin) {
-                        document.getElementById('appUserListBtn').style.display = 'inline-block';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error checking admin role:', error);
-                });
+        async function checkAdminRole() {
+            try {
+                const isAdmin = await getJson('/check-admin');
+                if (isAdmin) {
+                    document.getElementById('appUserListBtn').style.display = 'inline-block';
+                }
+            } catch (err) {
+                console.warn('Unable to verify admin role:', err.message);
+            }
         }
 
         // Check if user has USER role and show/hide Shelf button
-        function checkUserRole() {
-            fetch('/check-user')
-                .then(response => response.json())
-                .then(isUser => {
-                    console.log('Is User:', isUser);
-                    isUserRole = isUser;
-                    if (isUser) {
-                        document.getElementById('shelfBtn').style.display = 'inline-block';
-                        document.getElementById('actionHeader').style.display = 'table-cell';
-                        getCurrentUserId();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error checking user role:', error);
-                });
+        async function checkUserRole() {
+            try {
+                const isUser = await getJson('/check-user');
+                isUserRole = isUser;
+                if (isUser) {
+                    document.getElementById('shelfBtn').style.display = 'inline-block';
+                    document.getElementById('actionHeader').style.display = 'table-cell';
+                    await getCurrentUserId();
+                }
+            } catch (err) {
+                console.warn('Unable to verify user role:', err.message);
+            }
         }
 
         // Get current user ID for shelf operations
-        function getCurrentUserId() {
-            fetch('/current-user-id')
-                .then(response => {
-                    if (response.ok) {
-                        return response.json();
-                    }
-                    throw new Error('User not found');
-                })
-                .then(userId => {
-                    currentUserId = userId;
-                    console.log('Current User ID:', userId);
-                })
-                .catch(error => {
-                    console.error('Error getting current user ID:', error);
-                });
+        async function getCurrentUserId() {
+            try {
+                currentUserId = await getJson('/current-user-id');
+            } catch (err) {
+                console.warn('No current user id:', err.message);
+                currentUserId = null;
+            }
         }
 
  
@@ -498,199 +505,152 @@
         }
 
         // Load books data
-        function loadBooks() {
-            fetch('/bookstore/books')
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data.data);
-                    const tbody = document.querySelector('#booksTable tbody');
-                    tbody.innerHTML = ''; // Clear existing rows
-                    data.data.forEach(book => {
-                        console.log('Book:', book);
-                        const row = document.createElement('tr');
-                        let actionColumn = '';
-                        if (isUserRole && currentUserId) {
-                            actionColumn = `<td><button class="btn btn-sm btn-success" onclick="addToShelf(${book.id})">Add to Shelf</button></td>`;
-                        } else if (isUserRole) {
-                            actionColumn = `<td></td>`;
-                        }
-                        
-                        row.innerHTML = `
-                            <td>${book.subject}</td>
-                            <td>${book.description}</td>
-                            <td>${book.isbn}</td>
-                            <td>${book.content}</td>
-                            <td>${book.contentType}</td>
-                            <td>${book.publisher}</td>
-                            <td>${book.createdDate}</td>
-                            <td>$${book.price}</td>
-                            <td>${book.category}</td>
-                            <td>${book.author}</td>
-                            ${actionColumn}
-                        `;
-                        tbody.appendChild(row);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error fetching books:', error);
-                    const tbody = document.querySelector('#booksTable tbody');
-                    tbody.innerHTML = '';
+        async function loadBooks() {
+            const tbody = document.querySelector('#booksTable tbody');
+            tbody.innerHTML = '';
+            try {
+                const payload = await getJson('/bookstore/books');
+                const books = unwrapApiResponse(payload) || [];
+                books.forEach(book => {
                     const row = document.createElement('tr');
-                    const colspan = isUserRole ? 11 : 10;
-                    row.innerHTML = `<td colspan="${colspan}" class="text-center text-danger">Failed to load data</td>`;
+                    const actionColumn = (isUserRole && currentUserId)
+                        ? `<td><button class="btn btn-sm btn-success" onclick="addToShelf(${book.id})">Add to Shelf</button></td>`
+                        : (isUserRole ? `<td></td>` : '');
+                    row.innerHTML = `
+                        <td>${safe(book.subject)}</td>
+                        <td>${safe(book.description)}</td>
+                        <td>${safe(book.isbn)}</td>
+                        <td>${safe(book.content)}</td>
+                        <td>${safe(book.contentType)}</td>
+                        <td>${safe(book.publisher)}</td>
+                        <td>${fmtDate(book.createdDate)}</td>
+                        <td>$${safe(book.price)}</td>
+                        <td>${safe(book.category)}</td>
+                        <td>${safe(book.author)}</td>
+                        ${actionColumn}
+                    `;
                     tbody.appendChild(row);
                 });
+                if (books.length === 0) {
+                    const row = document.createElement('tr');
+                    const colspan = isUserRole ? 11 : 10;
+                    row.innerHTML = `<td colspan="${colspan}" class="text-center">No books</td>`;
+                    tbody.appendChild(row);
+                }
+            } catch (err) {
+                const row = document.createElement('tr');
+                const colspan = isUserRole ? 11 : 10;
+                row.innerHTML = `<td colspan="${colspan}" class="text-center text-danger">${safe(err.message, 'Failed to load data')}</td>`;
+                tbody.appendChild(row);
+            }
         }
 
         // Add book to shelf
-        function addToShelf(bookId) {
+        async function addToShelf(bookId) {
             if (!currentUserId) {
                 alert('User ID not found. Please refresh the page.');
                 return;
             }
-            
-            fetch(`/bookstore/appuser-addbook/${currentUserId}/${bookId}`, {
-                method: 'POST'
-            })
-            .then(response => {
-                if (response.ok) {
-                    alert('Book added to shelf successfully!');
-                    return response.json();
-                } else {
-                    throw new Error('Failed to add book to shelf');
-                }
-            })
-            .then(data => {
-                console.log('Book added to shelf:', data);
-            })
-            .catch(error => {
-                console.error('Error adding book to shelf:', error);
-                alert('The book is already in your shelf.');
-            });
+            try {
+                const res = await getJson(`/bookstore/appuser-addbook/${currentUserId}/${bookId}`, { method: 'POST' });
+                const msg = res?.message || 'Book added to shelf successfully!';
+                alert(msg);
+            } catch (err) {
+                alert(err.message || 'Failed to add book to shelf');
+            }
         }
 
         // Load shelf data
-        function loadShelf() {
+        async function loadShelf() {
             if (!currentUserId) {
                 console.error('User ID not found');
                 return;
             }
-            
-            fetch(`/bookstore/appuser-books/${currentUserId}`)
-                .then(response => response.json())
-                .then(books => {
-                    const tbody = document.querySelector('#shelfTable tbody');
-                    tbody.innerHTML = ''; // Clear existing rows
-                    if (books.length === 0) {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `<td colspan="12" class="text-center">No books in your shelf</td>`;
-                        tbody.appendChild(row);
-                        return;
-                    }
-                    
-                    books.forEach(book => {
-                        console.log('Shelf Book:', book);
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${book.subject}</td>
-                            <td>${book.description}</td>
-                            <td>${book.isbn}</td>
-                            <td>${book.content}</td>
-                            <td>${book.contentType}</td>
-                            <td>${book.publisher}</td>
-                            <td>${book.createdDate}</td>
-                            <td>$${book.price}</td>
-                            <td>${book.category}</td>
-                            <td>${book.author}</td>
-                            <td>-</td>
-                            <td>-</td>
-                        `;
-                        tbody.appendChild(row);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error fetching shelf books:', error);
-                    const tbody = document.querySelector('#shelfTable tbody');
-                    tbody.innerHTML = '';
+            const tbody = document.querySelector('#shelfTable tbody');
+            tbody.innerHTML = '';
+            try {
+                const payload = await getJson(`/bookstore/appuser-books/${currentUserId}`);
+                const books = unwrapApiResponse(payload) || [];
+                if (books.length === 0) {
                     const row = document.createElement('tr');
-                    row.innerHTML = `<td colspan="12" class="text-center text-danger">Failed to load shelf data</td>`;
+                    row.innerHTML = `<td colspan="12" class="text-center">No books in your shelf</td>`;
+                    tbody.appendChild(row);
+                    return;
+                }
+                books.forEach(book => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${safe(book.subject)}</td>
+                        <td>${safe(book.description)}</td>
+                        <td>${safe(book.isbn)}</td>
+                        <td>${safe(book.content)}</td>
+                        <td>${safe(book.contentType)}</td>
+                        <td>${safe(book.publisher)}</td>
+                        <td>${fmtDate(book.createdDate)}</td>
+                        <td>$${safe(book.price)}</td>
+                        <td>${safe(book.category)}</td>
+                        <td>${safe(book.author)}</td>
+                        <td>-</td>
+                        <td>-</td>
+                    `;
                     tbody.appendChild(row);
                 });
+            } catch (err) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="12" class="text-center text-danger">${safe(err.message, 'Failed to load shelf data')}</td>`;
+                tbody.appendChild(row);
+            }
         }
 
         // Load app users data
-        function loadAppUsers() {
-            fetch('/appusers')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Not authorized or failed to fetch');
-                    }
-                    return response.json();
-                })
-                .then(appUsers => {
-                    const tbody = document.querySelector('#appUsersTable tbody');
-                    tbody.innerHTML = ''; // Clear existing rows
-                    appUsers.forEach(user => {
-                        console.log('AppUser:', user);
-                        const row = document.createElement('tr');
-                        
-                        // Determine action column content
-                        let actionColumn = '';
-                        if (!user.approvedBy) {
-                            actionColumn = `<td><button class="btn btn-sm btn-primary" onclick="approveUser(${user.id})">Approve</button></td>`;
-                        } else {
-                            actionColumn = `<td><span class="text-success">Approved</span></td>`;
-                        }
-                        
-                        row.innerHTML = `
-                            <td>${user.id}</td>
-                            <td>${user.username}</td>
-                            <td>${user.name || ''}</td>
-                            <td>${user.email || ''}</td>
-                            <td>${user.telephone || ''}</td>
-                            <td>${user.mobile || ''}</td>
-                            <td>${user.address || ''}</td>
-                            <td>${user.enabled ? 'Yes' : 'No'}</td>
-                            <td>${user.createdDate || ''}</td>
-                            <td>${user.approvedDate || ''}</td>
-                            <td>${user.approvedBy || ''}</td>
-                            ${actionColumn}
-                        `;
-                        tbody.appendChild(row);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error fetching app users:', error);
-                    const tbody = document.querySelector('#appUsersTable tbody');
-                    tbody.innerHTML = '';
+        async function loadAppUsers() {
+            const tbody = document.querySelector('#appUsersTable tbody');
+            tbody.innerHTML = '';
+            try {
+                const appUsers = await getJson('/appusers');
+                appUsers.forEach(user => {
                     const row = document.createElement('tr');
-                    row.innerHTML = `<td colspan="12" class="text-center text-danger">Failed to load data or not authorized</td>`;
+                    const actionColumn = !user.approvedBy
+                        ? `<td><button class="btn btn-sm btn-primary" onclick="approveUser(${user.id})">Approve</button></td>`
+                        : `<td><span class="text-success">Approved</span></td>`;
+                    row.innerHTML = `
+                        <td>${user.id}</td>
+                        <td>${safe(user.username)}</td>
+                        <td>${safe(user.name)}</td>
+                        <td>${safe(user.email)}</td>
+                        <td>${safe(user.telephone)}</td>
+                        <td>${safe(user.mobile)}</td>
+                        <td>${safe(user.address)}</td>
+                        <td>${user.enabled ? 'Yes' : 'No'}</td>
+                        <td>${fmtDate(user.createdDate)}</td>
+                        <td>${fmtDate(user.approvedDate)}</td>
+                        <td>${safe(user.approvedBy)}</td>
+                        ${actionColumn}
+                    `;
                     tbody.appendChild(row);
                 });
+                if (appUsers.length === 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td colspan="12" class="text-center">No users</td>`;
+                    tbody.appendChild(row);
+                }
+            } catch (err) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="12" class="text-center text-danger">${safe(err.message, 'Failed to load data or not authorized')}</td>`;
+                tbody.appendChild(row);
+            }
         }
 
         // Approve user function
-        function approveUser(appUserId) {
+        async function approveUser(appUserId) {
             if (confirm('Are you sure you want to approve this user?')) {
-                fetch(`/admin/approve/${appUserId}`, {
-                    method: 'GET'
-                })
-                .then(response => {
-                    if (response.ok) {
-                        alert('User approved successfully!');
-                        loadAppUsers(); // Reload the table to update the UI
-                        return response.json();
-                    } else {
-                        throw new Error('Failed to approve user');
-                    }
-                })
-                .then(data => {
-                    console.log('User approved:', data);
-                })
-                .catch(error => {
-                    console.error('Error approving user:', error);
-                    alert('Error approving user. Please try again.');
-                });
+                try {
+                    const res = await getJson(`/admin/approve/${appUserId}`);
+                    alert(res?.message || 'User approved successfully!');
+                    await loadAppUsers();
+                } catch (err) {
+                    alert(err.message || 'Error approving user. Please try again.');
+                }
             }
         }
 
@@ -916,36 +876,35 @@
         });
 
         // Load authors and categories for book creation dropdown
-        function loadAuthorsAndCategories() {
-            // Load authors
-            fetch('/bookstore/authors')
-                .then(response => response.json())
-                .then(authors => {
-                    const authorSelect = document.getElementById('bookAuthor');
-                    authorSelect.innerHTML = '<option value="">Select Author</option>';
-                    authors.forEach(author => {
-                        const option = document.createElement('option');
-                        option.value = author.name;
-                        option.textContent = author.name;
-                        authorSelect.appendChild(option);
-                    });
-                })
-                .catch(error => console.error('Error loading authors:', error));
-
-            // Load categories
-            fetch('/bookstore/categories')
-                .then(response => response.json())
-                .then(categories => {
-                    const categorySelect = document.getElementById('bookCategory');
-                    categorySelect.innerHTML = '<option value="">Select Category</option>';
-                    categories.forEach(category => {
-                        const option = document.createElement('option');
-                        option.value = category.name;
-                        option.textContent = category.name;
-                        categorySelect.appendChild(option);
-                    });
-                })
-                .catch(error => console.error('Error loading categories:', error));
+        async function loadAuthorsAndCategories() {
+            try {
+                const authorsPayload = await getJson('/bookstore/authors');
+                const authors = unwrapApiResponse(authorsPayload) || [];
+                const authorSelect = document.getElementById('bookAuthor');
+                authorSelect.innerHTML = '<option value="">Select Author</option>';
+                authors.forEach(author => {
+                    const option = document.createElement('option');
+                    option.value = author.name;
+                    option.textContent = author.name;
+                    authorSelect.appendChild(option);
+                });
+            } catch (err) {
+                console.warn('Error loading authors:', err.message);
+            }
+            try {
+                const categoriesPayload = await getJson('/bookstore/categories');
+                const categories = unwrapApiResponse(categoriesPayload) || [];
+                const categorySelect = document.getElementById('bookCategory');
+                categorySelect.innerHTML = '<option value="">Select Category</option>';
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.name;
+                    option.textContent = category.name;
+                    categorySelect.appendChild(option);
+                });
+            } catch (err) {
+                console.warn('Error loading categories:', err.message);
+            }
         }
 
         // Load dropdowns when the book modal is opened
@@ -964,28 +923,20 @@
                 country: formData.get('country')
             };
 
-            fetch('/bookstore/create-author', {
+            getJson('/bookstore/create-author', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(authorData)
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Author created:', data);
-                alert('Author created successfully!');
+            .then(res => { alert(res?.message || 'Author created successfully!'); })
+            .then(() => {
                 bootstrap.Modal.getInstance(document.getElementById('createAuthorModal')).hide();
-                this.reset(); // Clear form
-                // Reload authors dropdown if book modal is open
+                this.reset();
                 if (document.getElementById('createBookModal').classList.contains('show')) {
                     loadAuthorsAndCategories();
                 }
             })
-            .catch(error => {
-                console.error('Error creating author:', error);
-                alert('Error creating author. Please try again.');
-            });
+            .catch(err => alert(err.message || 'Error creating author. Please try again.'));
         });
 
         // Handle Create Category Form Submission
@@ -998,28 +949,20 @@
                 description: formData.get('description')
             };
 
-            fetch('/bookstore/create-category', {
+            getJson('/bookstore/create-category', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(categoryData)
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Category created:', data);
-                alert('Category created successfully!');
+            .then(res => { alert(res?.message || 'Category created successfully!'); })
+            .then(() => {
                 bootstrap.Modal.getInstance(document.getElementById('createCategoryModal')).hide();
-                this.reset(); // Clear form
-                // Reload categories dropdown if book modal is open
+                this.reset();
                 if (document.getElementById('createBookModal').classList.contains('show')) {
                     loadAuthorsAndCategories();
                 }
             })
-            .catch(error => {
-                console.error('Error creating category:', error);
-                alert('Error creating category. Please try again.');
-            });
+            .catch(err => alert(err.message || 'Error creating category. Please try again.'));
         });
 
         // Handle Create Book Form Submission
@@ -1040,26 +983,18 @@
                 category: formData.get('category')
             };
 
-            fetch('/bookstore/create-book', {
+            getJson('/bookstore/create-book', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(bookData)
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                alert('Book created successfully!');
+            .then(res => { alert(res?.message || 'Book created successfully!'); })
+            .then(() => {
                 bootstrap.Modal.getInstance(document.getElementById('createBookModal')).hide();
-                this.reset(); // Clear form
-                // Reload the books table
-                location.reload();
+                this.reset();
+                loadBooks();
             })
-            .catch(error => {
-                console.error('Error creating book:', error);
-                alert('Error creating book. Please try again.');
-            });
+            .catch(err => alert(err.message || 'Error creating book. Please try again.'));
         });
     </script>
 </body>

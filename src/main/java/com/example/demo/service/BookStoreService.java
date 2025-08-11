@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.dto.ApiResponse;
 import com.example.demo.dto.BookDTO;
@@ -17,7 +18,6 @@ import com.example.demo.repository.AuthorRepository;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.dto.AuthorDTO;
 import com.example.demo.dto.CategoryDTO;
-import com.example.demo.dto.ShelfDTO;
 import com.example.demo.model.Shelf;
 import com.example.demo.model.AppUser;
 import com.example.demo.repository.AppUserRepository;
@@ -43,6 +43,7 @@ public class BookStoreService {
 
     // ######################################################### book start #########################################################
     // Create book
+    @Transactional
     public ApiResponse createBook(BookDTO bookDTO) {
         // check if book exists, if not throw exception
         Optional<Book> bookOptional = bookRepository.findBySubject(bookDTO.getSubject());
@@ -96,6 +97,7 @@ public class BookStoreService {
 
 
     // Update Book
+    @Transactional
     public ApiResponse updateBook(Long id, BookDTO bookDTO) {
         Book book = bookRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Book not found"));
@@ -116,6 +118,7 @@ public class BookStoreService {
     }
         
     // Remove book
+    @Transactional
     public ApiResponse deleteBook(Long id) {
         
         // check if book exists, if not throw exception
@@ -130,6 +133,7 @@ public class BookStoreService {
 
     // ######################################################### author start #########################################################
     // Create author
+    @Transactional
     public ApiResponse createAuthor(AuthorDTO authorDTO) {
         // check if author exists, if not throw exception
         Optional<Author> authorOptional = authorRepository.findByName(authorDTO.getName());
@@ -167,6 +171,7 @@ public class BookStoreService {
     }
 
     // Update author
+    @Transactional
     public ApiResponse updateAuthor(Long id, AuthorDTO authorDTO) {
         Author author = authorRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Author not found"));
@@ -178,6 +183,7 @@ public class BookStoreService {
     }
 
     // Remove author
+    @Transactional
     public ApiResponse deleteAuthor(Long id) {
         // check if author exists, if not throw exception   
         Optional<Author> author = authorRepository.findById(id);
@@ -202,6 +208,7 @@ public class BookStoreService {
 
     // ######################################################### Category start #########################################################
     // Create category
+    @Transactional
     public ApiResponse createCategory(CategoryDTO categoryDTO) {
         // check if category exists, if not throw exception
         Optional<Category> categoryOptional = categoryRepository.findByName(categoryDTO.getName());
@@ -232,6 +239,7 @@ public class BookStoreService {
     }
 
     // Update category
+    @Transactional
     public ApiResponse updateCategory(Long id, CategoryDTO categoryDTO) {
         Category category = categoryRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
@@ -242,6 +250,7 @@ public class BookStoreService {
     }
 
     // Remove category
+    @Transactional
     public ApiResponse deleteCategory(Long id) {
         // check if category exists, if not throw exception 
         Optional<Category> category = categoryRepository.findById(id);
@@ -269,6 +278,7 @@ public class BookStoreService {
 
     // ######################################################### shelf start #########################################################
     // Add book to appuser's shelf
+    @Transactional
     public ApiResponse addBookToAppUserShelf(Long appuserId, Long bookid) {
         AppUser appUser = appUserRepository.findById(appuserId)
             .orElseThrow(() -> new ResourceNotFoundException("AppUser not found"));
@@ -289,7 +299,10 @@ public class BookStoreService {
         if (appUser.isPresent()) {
             AppUser appUserEntity = appUser.get();
             List<Shelf> shelf = shelfRepository.findByAppUserId(appUserEntity.getId());
-            List<Book> books = shelf.stream().map(Shelf::getBook).collect(Collectors.toList());
+            List<BookDTO> books = shelf.stream()
+                .map(Shelf::getBook)
+                .map(BookDTO::toBookDTO)
+                .collect(Collectors.toList());
             return new ApiResponse("Books fetched successfully", books);
         }
         throw new ResourceNotFoundException("AppUser not found");
